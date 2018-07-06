@@ -1,5 +1,5 @@
 <RCC>
-    <qresource prefix="/plugins/floor_selector">
+    <qresource prefix="/plugins/dimensions_selector">
         <file>icon.png</file>
     </qresource>
 </RCC>
