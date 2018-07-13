@@ -13,9 +13,7 @@ __date__ = '2018-07-05'
 __copyright__ = 'Copyright 2018, Camptocamp'
 
 import unittest
-
 from PyQt5.QtGui import QIcon
-
 
 
 class DimensionsSelectorResourcesTest(unittest.TestCase):
@@ -34,6 +32,7 @@ class DimensionsSelectorResourcesTest(unittest.TestCase):
         path = ':/plugins/FloorSlider/icon.png'
         icon = QIcon(path)
         self.assertFalse(icon.isNull())
+
 
 if __name__ == "__main__":
     suite = unittest.makeSuite(DimensionsSelectorResourcesTest)

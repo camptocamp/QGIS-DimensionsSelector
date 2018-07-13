@@ -83,7 +83,7 @@ test: compile transcompile
 	@-export PYTHONPATH=`pwd`:$(PYTHONPATH); \
 		export QGIS_DEBUG=0; \
 		export QGIS_LOG_FILE=/dev/null; \
-		python3 -m nose -v --with-id --with-coverage --cover-package=. \
+		python3 -m nose -v --with-id --with-coverage --cover-package=. test \
 		3>&1 1>&2 2>&3 3>&- || true
 	@echo "----------------------"
 	@echo "If you get a 'no module named qgis.core error, try sourcing"
@@ -189,6 +189,9 @@ clean:
 	@echo "------------------------------------"
 	rm $(COMPILED_UI_FILES) $(COMPILED_RESOURCE_FILES)
 
+cleanall: clean
+	rm -rf .build
+
 doc:
 	@echo
 	@echo "------------------------------------"
@@ -196,12 +199,14 @@ doc:
 	@echo "------------------------------------"
 	cd help; make html
 
+check: flake8
+
 pylint:
 	@echo
 	@echo "-----------------"
 	@echo "Pylint violations"
 	@echo "-----------------"
-	@pylint --reports=n --rcfile=pylintrc . || true
+	@pylint --reports=n --rcfile=pylintrc . core gui test || true
 	@echo
 	@echo "----------------------"
 	@echo "If you get a 'no module named qgis.core' error, try sourcing"
@@ -217,7 +222,19 @@ pep8:
 	@echo "-----------"
 	@echo "PEP8 issues"
 	@echo "-----------"
-	@pep8 --repeat --ignore=E203,E121,E122,E123,E124,E125,E126,E127,E128 --exclude $(PEP8EXCLUDE) . || true
+	@pep8 --repeat --ignore=E203,E121,E122,E123,E124,E125,E126,E127,E128 --exclude $(PEP8EXCLUDE) --max-line-length=110 . || true
 	@echo "-----------"
 	@echo "Ignored in PEP8 check:"
 	@echo $(PEP8EXCLUDE)
+
+
+flake8: .build/requirements-dev.timestamp
+	.build/venv/bin/flake8
+
+.build/venv.timestamp:
+	virtualenv -p python3 .build/venv
+	touch $@
+
+.build/requirements-dev.timestamp: .build/venv.timestamp requirements-dev.txt
+	.build/venv/bin/pip install -r requirements-dev.txt
+	touch $@

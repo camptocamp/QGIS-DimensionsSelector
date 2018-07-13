@@ -7,6 +7,3 @@ from qgis import utils
 
 QGIS_APP = start_app()
 utils.iface = get_iface()
-
-import pydevd
-pydevd.settrace(suspend=False)

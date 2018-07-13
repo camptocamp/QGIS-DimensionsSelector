@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from PyQt5.QtCore import Qt, pyqtSignal, QAbstractTableModel, QModelIndex
-from PyQt5.QtGui import QStandardItemModel, QStandardItem
 from PyQt5.QtWidgets import QComboBox, QWidgetAction
 
 

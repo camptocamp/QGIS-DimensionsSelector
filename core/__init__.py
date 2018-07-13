@@ -69,9 +69,9 @@ class DimensionsManager(QObject):
 
     def read(self):
         self._dimensions = []
-        str, ok = QgsProject.instance().readEntry(self.scope, 'dimensions')
-        if ok and str:
-            for dict_ in json.loads(str):
+        str_value, ok = QgsProject.instance().readEntry(self.scope, 'dimensions')
+        if ok and str_value:
+            for dict_ in json.loads(str_value):
                 self._dimensions.append(Dimension.fromDict(dict_))
 
         active, ok = QgsProject.instance().readBoolEntry(self.scope, 'dimensions')
@@ -80,10 +80,13 @@ class DimensionsManager(QObject):
 
         self.configurationChanged.emit()
 
-    def write(self, doc):
+    def write(self, doc):  # pylint: disable=unused-argument
         self.restore_subset_strings()
         QgsProject.instance().writeEntry(self.scope, 'active', self.active())
-        QgsProject.instance().writeEntry(self.scope, 'dimensions', json.dumps([d.toDict() for d in self._dimensions]))
+        QgsProject.instance().writeEntry(
+            self.scope,
+            'dimensions',
+            json.dumps([d.toDict() for d in self._dimensions]))
 
     def saved(self):
         self.refresh_filters()
@@ -92,7 +95,10 @@ class DimensionsManager(QObject):
         return self._active
 
     def set_active(self, value):
-        if self._active == False and value == True:
+        value = bool(value)
+        if self._active == value:
+            return
+        if value is True:
             self.backup_subset_strings()
         self._active = value
         self.refresh_filters()
@@ -115,9 +121,9 @@ class DimensionsManager(QObject):
 
     def layer_dimensions(self, layer):
         dimensions = []
-        str = layer.customProperty(self.scope, None)
-        if str:
-            for dict_ in json.loads(str):
+        str_value = layer.customProperty(self.scope, None)
+        if str_value:
+            for dict_ in json.loads(str_value):
                 dimensions.append(LayerDimension.fromDict(layer, dict_))
         return dimensions
 
@@ -129,15 +135,10 @@ class DimensionsManager(QObject):
         if not self._active:
             return
         for layer in QgsProject.instance().mapLayers().values():
-            try:
-                self._apply_layer_filter(layer)
-            except Exception as e:
-                print(e)
-                continue
+            self._apply_layer_filter(layer)
 
     def _apply_layer_filter(self, layer):
         clauses = []
-        layer_dimensions = self.layer_dimensions(layer)
         for layer_dimension in self.layer_dimensions(layer):
             if not layer_dimension.active:
                 continue
@@ -146,7 +147,7 @@ class DimensionsManager(QObject):
                     clauses.append('"{}" = \'{}\''.format(
                         layer_dimension.field,
                         dimension.current_value))
-        if len(clauses) == 0:
+        if not clauses:
             return
         if layer.subsetString():
             sql = '( {} ) AND ( {} )'.format(
@@ -157,5 +158,5 @@ class DimensionsManager(QObject):
             sql = '( {} )'.format(
                 ') AND ('.join(clauses)
             )
-        if not layer.setSubsetString( sql ):
-            raise Exception( "Layer {} does not support subset string: {}".format(layer.name(), sql) )
+        if not layer.setSubsetString(sql):
+            raise Exception("Layer {} does not support subset string: {}".format(layer.name(), sql))

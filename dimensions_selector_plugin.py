@@ -25,16 +25,15 @@ import os.path
 
 from qgis.core import QgsApplication
 
-from PyQt5.QtCore import QObject, QSettings, QTranslator, qVersion, QCoreApplication
-from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
 from PyQt5.QtWidgets import QAction
 
 from .core import DimensionsManager
 
 # Initialize Qt resources from file resources.py
-from .resources import *
+from .resources import *  # noqa: F401 F403
 # Import the code for the dialog
-from .gui.actions import DimensionValuesModel, DimensionSelectorAction
+from .gui.actions import DimensionSelectorAction
 from .gui.settings_dialog import SettingsDialog
 
 

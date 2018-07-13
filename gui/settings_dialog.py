@@ -25,14 +25,13 @@
 import os
 import itertools
 
-from qgis.core import QgsApplication, QgsProject, QgsVectorLayer, QgsMapLayerProxyModel
+from qgis.core import QgsProject, QgsMapLayerProxyModel
 from qgis.gui import QgsMapLayerComboBox, QgsFieldComboBox
-from qgis.utils import iface
 
 from qgis.PyQt import uic
 from qgis.PyQt import QtWidgets
 from qgis.PyQt.QtCore import pyqtSlot, Qt, QSortFilterProxyModel, QAbstractTableModel, QModelIndex, QVariant
-from qgis.PyQt.QtWidgets import QHeaderView, QStyledItemDelegate, QAbstractItemView 
+from qgis.PyQt.QtWidgets import QHeaderView, QStyledItemDelegate, QAbstractItemView
 
 from dimensions_selector.core import Dimension, LayerDimension
 

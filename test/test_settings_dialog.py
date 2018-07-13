@@ -25,12 +25,13 @@ class SettingsDialogTest(unittest.TestCase):
 
     def setUp(self):
         """Runs before each test."""
-        manager = DimensionsManager('dimensions_selector')
-        self.dialog = SettingsDialog(manager, None)
+        self.manager = DimensionsManager('dimensions_selector')
+        self.dialog = SettingsDialog(self.manager, None)
 
     def tearDown(self):
         """Runs after each test."""
         self.dialog = None
+        self.manager.deleteLater()
 
     def test_dialog_ok(self):
         """Test we can click OK."""
@@ -45,6 +46,7 @@ class SettingsDialogTest(unittest.TestCase):
         button.click()
         result = self.dialog.result()
         self.assertEqual(result, QDialog.Rejected)
+
 
 if __name__ == "__main__":
     suite = unittest.makeSuite(SettingsDialogTest)
