@@ -315,15 +315,21 @@ class SettingsDialog(QtWidgets.QDialog, FORM_CLASS):
         self.layerDimensionsView.horizontalHeader().resizeSections(QHeaderView.ResizeToContents)
         self.layerDimensionsView.setSelectionBehavior(QAbstractItemView.SelectRows)
 
-    def selected_dimension_name(self):
+    def selected_dimensions_names(self):
+        names = []
         selection = self.dimensionsView.selectionModel().selectedRows()
         for index in selection:
             model = self.dimensionsView.model()
             name = model.data(model.index(index.row(), self._dimensions_model.columnIndex('name')))
-            return name
+            names.append(name)
+        return names
 
     def on_dimensionsView_selectionChanged(self, selected, deselected):
-        self.applyCurrentDimensionFilter()
+        if self.dimensionsView.selectionModel().hasSelection():
+            pattern = '^{}$'.format('|'.join(self.selected_dimensions_names()))
+        else:
+            pattern = ''
+        self.layerDimensionsView.model().setFilterRegExp(pattern)
         self.layerDimensionsView.horizontalHeader().resizeSections(QHeaderView.ResizeToContents)
 
     @pyqtSlot(name='on_addDimensionButton_clicked')
@@ -340,29 +346,16 @@ class SettingsDialog(QtWidgets.QDialog, FORM_CLASS):
 
     @pyqtSlot(name='on_populateDimensionButton_clicked')
     def on_populateDimensionButton_clicked(self):
-        name = self.selected_dimension_name()
-        if name is None:
-            return
         items = []
-        for id, layer in QgsProject.instance().mapLayers().items():
-            if layer.fields().lookupField('etage') == -1:
-                continue
-            if self._layer_dimensions_model.hasItem(layer, name):
-                continue
-            items.append(LayerDimension(layer, 'etage', 'etage', True))
+        for name in self.selected_dimensions_names():
+            for id, layer in QgsProject.instance().mapLayers().items():
+                if layer.fields().lookupField('etage') == -1:
+                    continue
+                if self._layer_dimensions_model.hasItem(layer, name):
+                    continue
+                items.append(LayerDimension(layer, 'etage', 'etage', True))
         self._layer_dimensions_model.addItems(sorted(items, key=lambda d: d.layer.name()))
         self.layerDimensionsView.horizontalHeader().resizeSections(QHeaderView.ResizeToContents)
-
-    @pyqtSlot(name='on_filterCheckBox_clicked')
-    def on_filterCheckBox_clicked(self):
-        self.applyCurrentDimensionFilter()
-        self.layerDimensionsView.horizontalHeader().resizeSections(QHeaderView.ResizeToContents)
-
-    def applyCurrentDimensionFilter(self):
-        if self.filterCheckBox.isChecked():
-            self.layerDimensionsView.model().setFilterFixedString(self.selected_dimension_name() or ' ')
-        else:
-            self.layerDimensionsView.model().setFilterFixedString('')
 
     @pyqtSlot(name='on_addLayerDimensionButton_clicked')
     def on_addLayerDimensionButton_clicked(self):

@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>Dimensions Selector Settings</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_2" stretch="1,3,0">
+  <layout class="QVBoxLayout" name="verticalLayout" stretch="1,3,0">
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
@@ -60,49 +60,38 @@
     </layout>
    </item>
    <item>
-    <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0">
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
-      <widget class="QCheckBox" name="filterCheckBox">
-       <property name="text">
-        <string>Filter with selected dimension</string>
-       </property>
-      </widget>
+      <widget class="QTableView" name="layerDimensionsView"/>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <layout class="QVBoxLayout" name="verticalLayout_4">
        <item>
-        <widget class="QTableView" name="layerDimensionsView"/>
+        <widget class="QPushButton" name="addLayerDimensionButton">
+         <property name="text">
+          <string>Add</string>
+         </property>
+        </widget>
        </item>
        <item>
-        <layout class="QVBoxLayout" name="verticalLayout_4">
-         <item>
-          <widget class="QPushButton" name="addLayerDimensionButton">
-           <property name="text">
-            <string>Add</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="removeLayerDimensionButton">
-           <property name="text">
-            <string>Remove</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <spacer name="verticalSpacer_2">
-           <property name="orientation">
-            <enum>Qt::Vertical</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>40</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-        </layout>
+        <widget class="QPushButton" name="removeLayerDimensionButton">
+         <property name="text">
+          <string>Remove</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
        </item>
       </layout>
      </item>
