@@ -312,8 +312,6 @@ class SettingsDialog(QtWidgets.QDialog, FORM_CLASS):
         self.layerDimensionsView.setItemDelegateForColumn(layer_index, LayerDelegate(self))
         field_index = self._layer_dimensions_model.columnIndex('field')
         self.layerDimensionsView.setItemDelegateForColumn(field_index, FieldDelegate(layer_index, self))
-        name_index = self._layer_dimensions_model.columnIndex('name')
-        self.layerDimensionsView.horizontalHeader().setSectionHidden(name_index, True)
         self.layerDimensionsView.horizontalHeader().resizeSections(QHeaderView.ResizeToContents)
         self.layerDimensionsView.setSelectionBehavior(QAbstractItemView.SelectRows)
 
