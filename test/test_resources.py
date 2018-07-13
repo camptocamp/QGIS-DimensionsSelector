@@ -18,7 +18,7 @@ from PyQt5.QtGui import QIcon
 
 
 
-class FloorSliderDialogTest(unittest.TestCase):
+class DimensionsSelectorResourcesTest(unittest.TestCase):
     """Test rerources work."""
 
     def setUp(self):
@@ -36,9 +36,6 @@ class FloorSliderDialogTest(unittest.TestCase):
         self.assertFalse(icon.isNull())
 
 if __name__ == "__main__":
-    suite = unittest.makeSuite(FloorSliderResourcesTest)
+    suite = unittest.makeSuite(DimensionsSelectorResourcesTest)
     runner = unittest.TextTestRunner(verbosity=2)
     runner.run(suite)
-
-
-

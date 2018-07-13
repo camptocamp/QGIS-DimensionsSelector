@@ -6,7 +6,7 @@
     <message>
         <location filename="test_translations.py" line="48"/>
         <source>Good morning</source>
-        <translation type="unfinished"></translation>
+        <translation>Bonjour</translation>
     </message>
 </context>
 <context>

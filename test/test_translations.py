@@ -7,7 +7,6 @@
      (at your option) any later version.
 
 """
-from .utilities import get_qgis_app
 
 __author__ = 'ismailsunni@yahoo.co.id'
 __date__ = '12/10/2011'
@@ -16,9 +15,7 @@ __copyright__ = ('Copyright 2012, Australia Indonesia Facility for '
 import unittest
 import os
 
-from PyQt5.QtCore import QCoreApplication, QTranslator
-
-QGIS_APP = get_qgis_app()
+from qgis.PyQt.QtCore import QCoreApplication, QTranslator
 
 
 class SafeTranslationsTest(unittest.TestCase):
@@ -39,12 +36,12 @@ class SafeTranslationsTest(unittest.TestCase):
         parent_path = os.path.join(__file__, os.path.pardir, os.path.pardir)
         dir_path = os.path.abspath(parent_path)
         file_path = os.path.join(
-            dir_path, 'i18n', 'af.qm')
+            dir_path, 'i18n', 'fr.qm')
         translator = QTranslator()
         translator.load(file_path)
         QCoreApplication.installTranslator(translator)
 
-        expected_message = 'Goeie more'
+        expected_message = 'Bonjour'
         real_message = QCoreApplication.translate("@default", 'Good morning')
         self.assertEqual(real_message, expected_message)
 

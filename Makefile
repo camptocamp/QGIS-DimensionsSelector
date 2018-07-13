@@ -1,7 +1,7 @@
 #/***************************************************************************
-# FloorSlider
+# DimensionsSelector
 #
-# Floor Slider Plugin
+# Dimensions Selector Plugin
 #							 -------------------
 #		begin				: 2018-07-05
 #		git sha				: $Format:%H$
@@ -35,17 +35,12 @@ LRELEASE = lrelease
 
 
 # translation
-SOURCES = \
-	__init__.py \
-	floor_slider.py floor_slider_dialog.py
 
-PLUGINNAME = floor_slider
+PLUGINNAME = dimensions_selector
 
-PY_FILES = \
-	__init__.py \
-	floor_slider.py floor_slider_dialog.py
+PY_FILES = dimensions_selector_plugin.py $(shell find core gui -name "*.py")
 
-UI_FILES = floor_slider_dialog_base.ui
+UI_FILES = $(shell find ui -name "*.ui")
 
 EXTRAS = metadata.txt icon.png
 
@@ -88,7 +83,7 @@ test: compile transcompile
 	@-export PYTHONPATH=`pwd`:$(PYTHONPATH); \
 		export QGIS_DEBUG=0; \
 		export QGIS_LOG_FILE=/dev/null; \
-		nosetests -v --with-id --with-coverage --cover-package=. \
+		python3 -m nose -v --with-id --with-coverage --cover-package=. \
 		3>&1 1>&2 2>&3 3>&- || true
 	@echo "----------------------"
 	@echo "If you get a 'no module named qgis.core error, try sourcing"

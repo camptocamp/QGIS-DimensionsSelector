@@ -14,20 +14,19 @@ __copyright__ = 'Copyright 2018, Camptocamp'
 
 import unittest
 
-from PyQt5.QtGui import QDialogButtonBox, QDialog
+from qgis.PyQt.QtWidgets import QDialogButtonBox, QDialog
 
-from floor_slider_dialog import FloorSliderDialog
-
-from utilities import get_qgis_app
-QGIS_APP = get_qgis_app()
+from dimensions_selector.core import DimensionsManager
+from dimensions_selector.gui.settings_dialog import SettingsDialog
 
 
-class FloorSliderDialogTest(unittest.TestCase):
+class SettingsDialogTest(unittest.TestCase):
     """Test dialog works."""
 
     def setUp(self):
         """Runs before each test."""
-        self.dialog = FloorSliderDialog(None)
+        manager = DimensionsManager('dimensions_selector')
+        self.dialog = SettingsDialog(manager, None)
 
     def tearDown(self):
         """Runs after each test."""
@@ -35,7 +34,6 @@ class FloorSliderDialogTest(unittest.TestCase):
 
     def test_dialog_ok(self):
         """Test we can click OK."""
-
         button = self.dialog.button_box.button(QDialogButtonBox.Ok)
         button.click()
         result = self.dialog.result()
@@ -49,7 +47,6 @@ class FloorSliderDialogTest(unittest.TestCase):
         self.assertEqual(result, QDialog.Rejected)
 
 if __name__ == "__main__":
-    suite = unittest.makeSuite(FloorSliderDialogTest)
+    suite = unittest.makeSuite(SettingsDialogTest)
     runner = unittest.TextTestRunner(verbosity=2)
     runner.run(suite)
-

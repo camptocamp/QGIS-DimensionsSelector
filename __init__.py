@@ -31,6 +31,5 @@ def classFactory(iface):  # pylint: disable=invalid-name
     :param iface: A QGIS interface instance.
     :type iface: QgsInterface
     """
-    #
     from .dimensions_selector_plugin import DimensionsSelectorPlugin
     return DimensionsSelectorPlugin(iface)
