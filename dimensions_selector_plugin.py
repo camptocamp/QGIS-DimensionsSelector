@@ -74,7 +74,7 @@ class DimensionsSelectorPlugin():
         self.toolbar = self.iface.addToolBar(u'DimensionsSelector')
         self.toolbar.setObjectName(u'DimensionsSelector')
 
-        self.manager = DimensionsManager('dimensions_selector')
+        self.manager = DimensionsManager('dimensions_selector', iface.mainWindow())
         self.manager.configurationChanged.connect(self.configurationChanged)
 
     # noinspection PyMethodMayBeStatic

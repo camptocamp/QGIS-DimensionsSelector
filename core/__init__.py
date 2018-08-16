@@ -64,7 +64,7 @@ class DimensionsManager(QObject):
 
     def clear(self):
         self._dimensions = []
-        self._active = False
+        self.set_active(False)
         self.configurationChanged.emit()
 
     def read(self):
@@ -74,7 +74,7 @@ class DimensionsManager(QObject):
             for dict_ in json.loads(str_value):
                 self._dimensions.append(Dimension.fromDict(dict_))
 
-        active, ok = QgsProject.instance().readBoolEntry(self.scope, 'dimensions')
+        active, ok = QgsProject.instance().readBoolEntry(self.scope, 'active')
         if ok:
             self.set_active(active)
 
@@ -98,7 +98,7 @@ class DimensionsManager(QObject):
         value = bool(value)
         if self._active == value:
             return
-        if value is True:
+        if not self._active:
             self.backup_subset_strings()
         self._active = value
         self.refresh_filters()
