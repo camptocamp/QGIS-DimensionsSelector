@@ -80,6 +80,8 @@ class DimensionsManager(QObject):
 
         self.configurationChanged.emit()
 
+        self.refresh_filters()
+
     def write(self, doc):  # pylint: disable=unused-argument
         self.restore_subset_strings()
         QgsProject.instance().writeEntry(self.scope, 'active', self.active())
