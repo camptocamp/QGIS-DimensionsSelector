@@ -9,7 +9,7 @@
 [general]
 name=Dimensions Selector
 qgisMinimumVersion=3.0
-description=Floor Selector Plugin
+description=Dimensions Selector Plugin
 version=0.1
 author=Camptocamp
 email=info@camptocamp.com
