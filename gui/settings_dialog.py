@@ -348,11 +348,11 @@ class SettingsDialog(QtWidgets.QDialog, FORM_CLASS):
         items = []
         for name in self.selected_dimensions_names():
             for id, layer in QgsProject.instance().mapLayers().items():
-                if layer.fields().lookupField('etage') == -1:
+                if layer.fields().lookupField(name) == -1:
                     continue
                 if self._layer_dimensions_model.hasItem(layer, name):
                     continue
-                items.append(LayerDimension(layer, 'etage', 'etage', True))
+                items.append(LayerDimension(layer, name, name, True))
         self._layer_dimensions_model.addItems(sorted(items, key=lambda d: d.layer.name()))
         self.layerDimensionsView.horizontalHeader().resizeSections(QHeaderView.ResizeToContents)
 
