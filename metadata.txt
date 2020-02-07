@@ -10,7 +10,7 @@
 name=Dimensions Selector
 qgisMinimumVersion=3.0
 description=Dimensions Selector Plugin
-version=0.1
+version=0.2
 author=Camptocamp
 email=info@camptocamp.com
 
