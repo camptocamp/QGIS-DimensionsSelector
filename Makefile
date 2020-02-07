@@ -38,7 +38,7 @@ LRELEASE = lrelease
 
 PLUGINNAME = dimensions_selector
 
-PY_FILES = dimensions_selector_plugin.py $(shell find core gui -name "*.py")
+PY_FILES = __init__.py dimensions_selector_plugin.py $(shell find core gui -name "*.py")
 
 UI_FILES = $(shell find ui -name "*.ui")
 
@@ -61,7 +61,7 @@ PLUGIN_UPLOAD = $(c)/plugin_upload.py
 
 RESOURCE_SRC=$(shell grep '^ *<file' resources.qrc | sed 's@</file>@@g;s/.*>//g' | tr '\n' ' ')
 
-QGISDIR=.qgis2
+QGISDIR=.local/share/QGIS/QGIS3/profiles/default
 
 default: compile
 
@@ -73,42 +73,46 @@ compile: $(COMPILED_RESOURCE_FILES)
 %.qm : %.ts
 	$(LRELEASE) $<
 
-test: compile transcompile
+link:
+	ln -s $(shell pwd) ~/.local/share/QGIS/QGIS3/profiles/default/python/plugins/dimensions_selector
+
+test: compile transcompile .build/requirements-dev.timestamp
 	@echo
 	@echo "----------------------"
 	@echo "Regression Test Suite"
 	@echo "----------------------"
 
 	@# Preceding dash means that make will continue in case of errors
+	
 	@-export PYTHONPATH=`pwd`:$(PYTHONPATH); \
 		export QGIS_DEBUG=0; \
 		export QGIS_LOG_FILE=/dev/null; \
-		python3 -m nose -v --with-id --with-coverage --cover-package=. test \
-		3>&1 1>&2 2>&3 3>&- || true
+		.build/venv/bin/nosetests -v --with-id --with-coverage --cover-package=. test \
+			3>&1 1>&2 2>&3 3>&- || true
 	@echo "----------------------"
 	@echo "If you get a 'no module named qgis.core error, try sourcing"
 	@echo "the helper script we have provided first then run make test."
 	@echo "e.g. source run-env-linux.sh <path to qgis install>; make test"
 	@echo "----------------------"
 
-deploy: compile doc transcompile
+deploy: compile  transcompile
 	@echo
-	@echo "------------------------------------------"
-	@echo "Deploying plugin to your .qgis2 directory."
-	@echo "------------------------------------------"
+	@echo "------------------------------------------------"
+	@echo "Deploying plugin to your QGIS profile directory."
+	@echo "------------------------------------------------"
 	# The deploy  target only works on unix like operating system where
 	# the Python plugin directory is located at:
-	# $HOME/$(QGISDIR)/python/plugins
+	# $$HOME/$(QGISDIR)/python/plugins
+	rm -rf $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
 	mkdir -p $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
-	cp -vf $(PY_FILES) $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
-	cp -vf $(UI_FILES) $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
-	cp -vf $(COMPILED_RESOURCE_FILES) $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
-	cp -vf $(EXTRAS) $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
+	cp -vf --parents $(PY_FILES) $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
+	cp -vf --parents $(UI_FILES) $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
+	cp -vf --parents $(COMPILED_RESOURCE_FILES) $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
+	cp -vf --parents $(EXTRAS) $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
 	cp -vfr i18n $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
 	cp -vfr $(HELP) $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)/help
 	# Copy extra directories if any
-	(foreach EXTRA_DIR,(EXTRA_DIRS), cp -R (EXTRA_DIR) (HOME)/(QGISDIR)/python/plugins/(PLUGINNAME)/;)
-
+	# for EXTRA_DIR in "$(EXTRA_DIRS)"; do cp -R $(EXTRA_DIR) $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)/; done
 
 # The dclean target removes compiled python files from plugin directory
 # also deletes any .git entry
@@ -120,13 +124,13 @@ dclean:
 	find $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME) -iname "*.pyc" -delete
 	find $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME) -iname ".git" -prune -exec rm -Rf {} \;
 
-
 derase:
 	@echo
 	@echo "-------------------------"
 	@echo "Removing deployed plugin."
 	@echo "-------------------------"
 	rm -Rf $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
+	ln -s . $(HOME)/$(QGISDIR)/python/plugins/
 
 zip: deploy dclean
 	@echo
@@ -227,12 +231,11 @@ pep8:
 	@echo "Ignored in PEP8 check:"
 	@echo $(PEP8EXCLUDE)
 
-
 flake8: .build/requirements-dev.timestamp
 	.build/venv/bin/flake8
 
 .build/venv.timestamp:
-	virtualenv -p python3 .build/venv
+	python3 -m venv --system-site-packages .build/venv
 	touch $@
 
 .build/requirements-dev.timestamp: .build/venv.timestamp requirements-dev.txt
