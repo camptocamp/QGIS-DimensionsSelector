@@ -10,14 +10,14 @@
 name=Dimensions Selector
 qgisMinimumVersion=3.0
 description=Dimensions Selector Plugin
-version=0.2
+version=0.3
 author=Camptocamp
 email=info@camptocamp.com
 
 about=Allow filtering multiple layers on a common field (for example 'floor') by selecting one value in an ordered list.
 
-tracker=http://bugs
-repository=http://repo
+tracker=https://github.com/camptocamp/QGIS-DimensionsSelector/issues
+repository=https://github.com/camptocamp/QGIS-DimensionsSelector
 # End of mandatory metadata
 
 # Recommended items:
@@ -28,7 +28,7 @@ repository=http://repo
 # Tags are comma separated with spaces allowed
 tags=python
 
-homepage=http://homepage
+homepage=https://github.com/camptocamp/QGIS-DimensionsSelector/blob/master/README.md
 category=Plugins
 icon=icon.png
 # experimental flag
