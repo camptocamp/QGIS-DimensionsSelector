@@ -116,6 +116,10 @@ class DimensionsTableModel(BaseTableModel):
             'type': QVariant.String,
             'header': self.tr("Choices")
         }, {
+            'name': 'table',
+            'type': QVariant.String,
+            'header': self.tr("Table")
+        }, {
             'name': 'active',
             'type': QVariant.Bool,
             'header': self.tr("Active")
@@ -127,6 +131,8 @@ class DimensionsTableModel(BaseTableModel):
             column_def = self._columns[index.column()]
             if column_def['type'] == QVariant.Bool:
                 return ''
+            if column_def['name'] == 'table':
+                return item.table.name() if item.table is not None else ''
             return getattr(item, column_def['name'])
         if role == Qt.EditRole:
             item = self._items[index.row()]
@@ -287,6 +293,8 @@ class SettingsDialog(QtWidgets.QDialog, FORM_CLASS):
 
         self.dimensionsView.setSortingEnabled(True)
         self.dimensionsView.setModel(dimensions_proxy_model)
+        table_index = self._dimensions_model.columnIndex('table')
+        self.dimensionsView.setItemDelegateForColumn(table_index, LayerDelegate(self))
         self.dimensionsView.horizontalHeader().resizeSections(QHeaderView.ResizeToContents)
         self.dimensionsView.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.dimensionsView.selectionModel().selectionChanged.connect(self.on_dimensionsView_selectionChanged)

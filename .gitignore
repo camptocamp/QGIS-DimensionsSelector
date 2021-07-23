@@ -2,4 +2,8 @@
 *.qm
 *~
 /.build
+/.coverage
+/.noseids
+/dimensions_selector.zip
 /resources.py
+/test/data/project.qgs
