@@ -73,8 +73,8 @@ compile: $(COMPILED_RESOURCE_FILES)
 %.qm : %.ts
 	$(LRELEASE) $<
 
-link:
-	ln -s $(shell pwd) ~/.local/share/QGIS/QGIS3/profiles/default/python/plugins/dimensions_selector
+link: derase
+	ln -s $(shell pwd) $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
 
 test: compile transcompile .build/requirements-dev.timestamp
 	@echo
@@ -87,7 +87,7 @@ test: compile transcompile .build/requirements-dev.timestamp
 	@-export PYTHONPATH=`pwd`:$(PYTHONPATH); \
 		export QGIS_DEBUG=0; \
 		export QGIS_LOG_FILE=/dev/null; \
-		.build/venv/bin/nosetests -v --with-id --with-coverage --cover-package=. test \
+		.build/venv/bin/nosetests -v --with-id --with-coverage --cover-package=. ./test/ \
 			3>&1 1>&2 2>&3 3>&- || true
 	@echo "----------------------"
 	@echo "If you get a 'no module named qgis.core error, try sourcing"
@@ -130,7 +130,6 @@ derase:
 	@echo "Removing deployed plugin."
 	@echo "-------------------------"
 	rm -Rf $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
-	ln -s . $(HOME)/$(QGISDIR)/python/plugins/
 
 zip: deploy dclean
 	@echo
@@ -141,6 +140,8 @@ zip: deploy dclean
 	# content. You can then upload the zip file on http://plugins.qgis.org
 	rm -f $(PLUGINNAME).zip
 	cd $(HOME)/$(QGISDIR)/python/plugins; zip -9r $(CURDIR)/$(PLUGINNAME).zip $(PLUGINNAME)
+
+VERSION ?= HEAD
 
 package: compile
 	# Create a zip package of the plugin named $(PLUGINNAME).zip.
