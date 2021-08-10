@@ -22,6 +22,7 @@ from dimensions_selector.gui.settings_dialog import (
     DimensionsTableModel,
     LayerDimensionsTableModel,
     LayerDelegate,
+    FieldDelegate,
     SettingsDialog,
 )
 from dimensions_selector.test.utils import add_layer
@@ -344,6 +345,68 @@ class LayerDelegateTest(unittest.TestCase):
 
         editor = delegate.createEditor(None, None, None)
         editor.setLayer(self.layer2)
+
+        mock.assert_called_once_with()
+
+
+class FieldDelegateTest(unittest.TestCase):
+
+    def setUp(self):
+        super().setUp()
+
+        self.layer1 = add_layer('layer.geojson', 'layer1')
+        self.layer2 = add_layer('layer.geojson', 'layer2')
+
+        self.layer_dimensions = [
+            LayerDimension(layer=self.layer1, name="column", field="column", active=True),
+            LayerDimension(layer=self.layer2, name="row", field="row", active=True),
+        ]
+
+    def test_createEditor(self):
+        from qgis.gui import QgsFieldComboBox
+
+        model = LayerDimensionsTableModel(list(self.layer_dimensions))
+
+        delegate = FieldDelegate(layer_column_index=0)
+        editor = delegate.createEditor(None, None, model.index(0, 2))
+        self.assertTrue(isinstance(editor, QgsFieldComboBox))
+        self.assertEqual(editor.layer(), self.layer1)
+
+    def test_setEditorData(self):
+        model = LayerDimensionsTableModel(list(self.layer_dimensions))
+
+        delegate = FieldDelegate(layer_column_index=0)
+        editor = delegate.createEditor(None, None, model.index(0, 2))
+
+        delegate.setEditorData(editor, model.index(0, 2))
+        self.assertEqual(editor.currentField(), "column")
+
+    def test_setModelData(self):
+        model = LayerDimensionsTableModel(list(self.layer_dimensions))
+
+        delegate = FieldDelegate(layer_column_index=0)
+        editor = delegate.createEditor(None, None, model.index(0, 2))
+        editor.setField("row")
+
+        delegate.setModelData(editor, model, model.index(0, 2))
+        self.assertEqual(
+            model.data(
+                model.index(0, 2),
+                Qt.EditRole,
+            ),
+            "row",
+        )
+
+    def on_fieldChanged(self, layer):
+        model = LayerDimensionsTableModel(list(self.layer_dimensions))
+
+        delegate = FieldDelegate(layer_column_index=0)
+
+        mock = unittest.mock.Mock()
+        delegate.commitData.connect(mock)
+
+        editor = delegate.createEditor(None, None, model.index(0, 2))
+        editor.setField("row")
 
         mock.assert_called_once_with()
 
