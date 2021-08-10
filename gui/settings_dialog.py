@@ -89,7 +89,7 @@ class BaseTableModel(QAbstractTableModel):
             if orientation == Qt.Horizontal:
                 return self._columns[section]['header']
             if orientation == Qt.Vertical:
-                return section
+                return str(section)
 
     def flags(self, index):
         column_def = self._columns[index.column()]
@@ -341,7 +341,7 @@ class SettingsDialog(QtWidgets.QDialog, FORM_CLASS):
 
     @pyqtSlot(name='on_addDimensionButton_clicked')
     def on_addDimensionButton_clicked(self):
-        self._dimensions_model.addItem(Dimension('', '', True, ''))
+        self._dimensions_model.addItem(Dimension())
 
     @pyqtSlot(name='on_removeDimensionButton_clicked')
     def on_removeDimensionButton_clicked(self):
