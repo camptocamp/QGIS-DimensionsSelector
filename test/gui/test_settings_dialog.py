@@ -17,8 +17,8 @@ import unittest
 from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtWidgets import QDialogButtonBox, QDialog
 
-from dimensions_selector.core import Dimension, DimensionsManager
-from dimensions_selector.gui.settings_dialog import DimensionsTableModel, SettingsDialog
+from dimensions_selector.core import Dimension, DimensionsManager, LayerDimension
+from dimensions_selector.gui.settings_dialog import DimensionsTableModel, LayerDimensionsTableModel, SettingsDialog
 from dimensions_selector.test.utils import add_layer
 
 
@@ -140,6 +140,131 @@ class DimensionsTableModelTest(unittest.TestCase):
         new_rows = add_layer('rows.geojson', 'new_rows')
         model.setData(model.index(0, 2), new_rows, Qt.EditRole)
         self.assertEqual(dimensions[0].table, new_rows)
+
+        model.setData(model.index(0, 3), Qt.Unchecked, Qt.CheckStateRole)
+        self.assertEqual(dimensions[0].active, False)
+
+
+class LayerDimensionsTableModelTest(unittest.TestCase):
+
+    def setUp(self):
+        super().setUp()
+
+        self.layer1 = add_layer('layer.geojson', 'layer1')
+        self.layer2 = add_layer('layer.geojson', 'layer2')
+
+        self.layer_dimensions = [
+            LayerDimension(layer=self.layer1, name="column", field="column", active=True),
+            LayerDimension(layer=self.layer2, name="row", field="row", active=True),
+        ]
+
+    def test_items(self):
+        model = LayerDimensionsTableModel(list(self.layer_dimensions))
+        self.assertEqual(model.items(), self.layer_dimensions)
+
+    def test_addItem(self):
+        model = LayerDimensionsTableModel([])
+        for layer_dimension in self.layer_dimensions:
+            model.addItem(layer_dimension)
+        self.assertEqual(model.items(), self.layer_dimensions)
+
+    def test_removeRows(self):
+        model = LayerDimensionsTableModel(list(self.layer_dimensions))
+        model.removeRows(0, 1)
+        self.assertEqual(model.items(), [self.layer_dimensions[1]])
+
+    def test_columnIndex(self):
+        model = LayerDimensionsTableModel(list(self.layer_dimensions))
+        self.assertEqual(model.columnIndex("layer"), 0)
+        self.assertEqual(model.columnIndex("name"), 1)
+        self.assertEqual(model.columnIndex("field"), 2)
+        self.assertEqual(model.columnIndex("active"), 3)
+
+    def test_columnCount(self):
+        model = LayerDimensionsTableModel(list(self.layer_dimensions))
+        self.assertEqual(model.columnCount(), 4)
+
+    def test_rowCount(self):
+        model = LayerDimensionsTableModel(list(self.layer_dimensions))
+        self.assertEqual(model.rowCount(), 2)
+
+    def test_headerData(self):
+        model = LayerDimensionsTableModel(list(self.layer_dimensions))
+
+        self.assertEqual(model.headerData(0, Qt.Horizontal), "Layer")
+        self.assertEqual(model.headerData(1, Qt.Horizontal), "Name")
+        self.assertEqual(model.headerData(2, Qt.Horizontal), "Field")
+        self.assertEqual(model.headerData(3, Qt.Horizontal), "Active")
+
+        self.assertEqual(model.headerData(0, Qt.Vertical), "0")
+        self.assertEqual(model.headerData(1, Qt.Vertical), "1")
+
+    def test_flags(self):
+        model = LayerDimensionsTableModel(list(self.layer_dimensions))
+        self.assertEqual(
+            model.flags(model.index(0, 0)),
+            Qt.ItemFlags(
+                Qt.ItemIsSelectable |
+                Qt.ItemIsEditable |
+                Qt.ItemIsEnabled
+            )
+        )
+        self.assertEqual(
+            model.flags(model.index(0, 1)),
+            Qt.ItemFlags(
+                Qt.ItemIsSelectable |
+                Qt.ItemIsEditable |
+                Qt.ItemIsEnabled
+            )
+        )
+        self.assertEqual(
+            model.flags(model.index(0, 2)),
+            Qt.ItemFlags(
+                Qt.ItemIsSelectable |
+                Qt.ItemIsEditable |
+                Qt.ItemIsEnabled
+            )
+        )
+        self.assertEqual(
+            model.flags(model.index(0, 3)),
+            Qt.ItemFlags(
+                Qt.ItemIsSelectable |
+                Qt.ItemIsEditable |
+                Qt.ItemIsEnabled |
+                Qt.ItemIsUserCheckable
+            )
+        )
+
+    def test_data(self):
+        model = LayerDimensionsTableModel(list(self.layer_dimensions))
+        self.assertEqual(model.data(model.index(0, 0), Qt.DisplayRole), "layer1")
+        self.assertEqual(model.data(model.index(0, 0), Qt.EditRole), self.layer1)
+        self.assertEqual(model.data(model.index(0, 1), Qt.DisplayRole), "column")
+        self.assertEqual(model.data(model.index(0, 1), Qt.EditRole), "column")
+        self.assertEqual(model.data(model.index(0, 2), Qt.DisplayRole), "column")
+        self.assertEqual(model.data(model.index(0, 2), Qt.EditRole), "column")
+        self.assertEqual(model.data(model.index(0, 3), Qt.CheckStateRole), Qt.Checked)
+
+        self.assertEqual(model.data(model.index(1, 0), Qt.DisplayRole), "layer2")
+        self.assertEqual(model.data(model.index(1, 0), Qt.EditRole), self.layer2)
+        self.assertEqual(model.data(model.index(1, 1), Qt.DisplayRole), "row")
+        self.assertEqual(model.data(model.index(1, 1), Qt.EditRole), "row")
+        self.assertEqual(model.data(model.index(1, 2), Qt.DisplayRole), "row")
+        self.assertEqual(model.data(model.index(1, 2), Qt.EditRole), "row")
+        self.assertEqual(model.data(model.index(1, 3), Qt.CheckStateRole), Qt.Checked)
+
+    def test_setData(self):
+        dimensions = list(self.layer_dimensions)
+        model = LayerDimensionsTableModel(list(self.layer_dimensions))
+
+        model.setData(model.index(0, 0), self.layer2, Qt.EditRole)
+        self.assertEqual(dimensions[0].layer, self.layer2)
+
+        model.setData(model.index(0, 1), "new_name", Qt.EditRole)
+        self.assertEqual(dimensions[0].name, "new_name")
+
+        model.setData(model.index(0, 2), "new_field", Qt.EditRole)
+        self.assertEqual(dimensions[0].field, "new_field")
 
         model.setData(model.index(0, 3), Qt.Unchecked, Qt.CheckStateRole)
         self.assertEqual(dimensions[0].active, False)
