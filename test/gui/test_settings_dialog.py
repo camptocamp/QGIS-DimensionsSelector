@@ -18,7 +18,12 @@ from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtWidgets import QDialogButtonBox, QDialog
 
 from dimensions_selector.core import Dimension, DimensionsManager, LayerDimension
-from dimensions_selector.gui.settings_dialog import DimensionsTableModel, LayerDimensionsTableModel, SettingsDialog
+from dimensions_selector.gui.settings_dialog import (
+    DimensionsTableModel,
+    LayerDimensionsTableModel,
+    LayerDelegate,
+    SettingsDialog,
+)
 from dimensions_selector.test.utils import add_layer
 
 
@@ -268,6 +273,79 @@ class LayerDimensionsTableModelTest(unittest.TestCase):
 
         model.setData(model.index(0, 3), Qt.Unchecked, Qt.CheckStateRole)
         self.assertEqual(dimensions[0].active, False)
+
+
+class LayerDelegateTest(unittest.TestCase):
+
+    def setUp(self):
+        super().setUp()
+
+        self.layer1 = add_layer('layer.geojson', 'layer1')
+        self.layer2 = add_layer('layer.geojson', 'layer2')
+
+        self.layer_dimensions = [
+            LayerDimension(layer=self.layer1, name="column", field="column", active=True),
+            LayerDimension(layer=self.layer2, name="row", field="row", active=True),
+        ]
+
+    def test_createEditor(self):
+        from qgis.core import QgsMapLayerProxyModel
+        from qgis.gui import QgsMapLayerComboBox
+
+        delegate = LayerDelegate()
+        editor = delegate.createEditor(None, None, None)
+        self.assertTrue(isinstance(editor, QgsMapLayerComboBox))
+        self.assertEqual(editor.filters(), QgsMapLayerProxyModel.VectorLayer)
+
+    def test_setEditorData(self):
+        model = LayerDimensionsTableModel(list(self.layer_dimensions))
+        self.assertEqual(
+            model.data(
+                model.index(0, 0),
+                Qt.EditRole,
+            ),
+            self.layer1,
+        )
+
+        delegate = LayerDelegate()
+        editor = delegate.createEditor(None, None, None)
+
+        delegate.setEditorData(editor, model.index(0, 0))
+        self.assertEqual(editor.currentLayer(), self.layer1)
+
+    def test_setModelData(self):
+        model = LayerDimensionsTableModel(list(self.layer_dimensions))
+        self.assertEqual(
+            model.data(
+                model.index(0, 0),
+                Qt.EditRole,
+            ),
+            self.layer1,
+        )
+
+        delegate = LayerDelegate()
+        editor = delegate.createEditor(None, None, None)
+        editor.setLayer(self.layer2)
+
+        delegate.setModelData(editor, model, model.index(0, 0))
+        self.assertEqual(
+            model.data(
+                model.index(0, 0),
+                Qt.EditRole,
+            ),
+            self.layer2,
+        )
+
+    def on_layerChanged(self, layer):
+        delegate = LayerDelegate()
+
+        mock = unittest.mock.Mock()
+        delegate.commitData.connect(mock)
+
+        editor = delegate.createEditor(None, None, None)
+        editor.setLayer(self.layer2)
+
+        mock.assert_called_once_with()
 
 
 class SettingsDialogTest(unittest.TestCase):
