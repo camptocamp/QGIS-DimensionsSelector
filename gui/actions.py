@@ -8,7 +8,7 @@ class DimensionValuesModel(QAbstractTableModel):
 
     def __init__(self, dimension, parent=None):
         super().__init__(parent)
-        self._items = dimension.options.split(',')
+        self._items = dimension.getOptions()
 
     def columnCount(self, parent=QModelIndex()):
         if parent.isValid():
@@ -25,7 +25,9 @@ class DimensionValuesModel(QAbstractTableModel):
 
     def data(self, index, role=Qt.DisplayRole):
         if role == Qt.DisplayRole:
-            return self._items[index.row()]
+            return self._items[index.row()][1]
+        if role == Qt.ItemDataRole:
+            return self._items[index.row()][0]
 
 
 class DimensionSelectorAction(QWidgetAction):
