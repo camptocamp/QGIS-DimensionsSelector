@@ -111,11 +111,9 @@ package: compile
 	@echo "Exporting plugin to zip package.	"
 	@echo "------------------------------------"
 	mkdir -p dist
-	rm -f $(PLUGINNAME).zip
-	git archive -o dist/$(PLUGINNAME).zip HEAD $(PLUGINNAME)
-	zip -g dist/$(PLUGINNAME).zip $(PLUGINNAME)/resources.py
-	zip -gr dist/$(PLUGINNAME).zip $(PLUGINNAME)/help
-	echo "Created package: $(PLUGINNAME).zip"
+	rm -f dist/$(PLUGINNAME).zip
+	zip dist/$(PLUGINNAME).zip -r $(PLUGINNAME)
+	echo "Created package: dist/$(PLUGINNAME).zip"
 
 transup:
 	@echo
