@@ -1,0 +1,112 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2013, Camptocamp
+# This file is distributed under the same license as the FloorSlider
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2021.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: FloorSlider 0.1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-08-17 14:41+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.9.1\n"
+
+#: ../../source/index.rst:7
+msgid "Dimensions Selector QGIS plugin's documentation"
+msgstr ""
+
+#: ../../source/index.rst:10
+msgid "Configuration"
+msgstr ""
+
+#: ../../source/index.rst:13
+msgid "Add a dimension"
+msgstr "Ajouter une dimension"
+
+#: ../../source/index.rst:15
+msgid "Click on the **Add** button next to dimensions table."
+msgstr "Cliquer sur le bouton **Ajouter** à côté de la table des dimensions."
+
+#: ../../source/index.rst:16
+msgid ""
+"Set the **Name** value to the name of the field you want to use as a "
+"dimension, for example: \"floor\"."
+msgstr "Mettre dans le champ **Name** le nom du champ à utiliser comme dimension, par exemple : \"etage\"."
+
+#: ../../source/index.rst:19
+msgid "Configure dimension values, using a static list of values or using a table"
+msgstr "Configurer les valeurs de dimensions, avec le liste de valeurs statiques, ou avec un table"
+
+#: ../../source/index.rst:21
+msgid "If you want to enter a static list of choices:"
+msgstr "Si vous souhaitez entrer une liste fixe d'options:"
+
+#: ../../source/index.rst:23
+msgid ""
+"Set the **Choices** value to a commas separated list of possible values "
+"for the dimension, for example: \"value1,value2,value3,value4\"."
+msgstr "Entrez dans la colonne **Choix** une liste des valeurs possible séparées par des virgules, par exemple : \"valeur1,valeur2,valeur3,valeur4\"."
+
+#: ../../source/index.rst:25
+msgid "If you want to use a table of choices:"
+msgstr "Si vous souhaitez utiliser une table pour les choix :"
+
+#: ../../source/index.rst:27
+msgid "Select the source table in **Table** column."
+msgstr "Sélectionnez la table source dans la colonne **Table**."
+
+#: ../../source/index.rst:28
+msgid "Select appropriated fields in columns **Value field** and **Label field**."
+msgstr "Sélectionnez les champs appropriés dans les colonnes **Champ valeur** et **Champ texte**."
+
+#: ../../source/index.rst:31
+msgid "Configure the layers where this dimension whould apply"
+msgstr ""
+
+#: ../../source/index.rst:33
+msgid "Select the new dimension row in dimensions table."
+msgstr ""
+
+#: ../../source/index.rst:34
+msgid ""
+"Click populate to fillout the layers table (all layer with a \"floor\" "
+"field)."
+msgstr ""
+
+#: ../../source/index.rst:37
+msgid "Validate your configuration"
+msgstr ""
+
+#: ../../source/index.rst:39
+msgid "Click OK."
+msgstr ""
+
+#: ../../source/index.rst:41
+msgid "Note that you still need to save you QGIS project."
+msgstr ""
+
+#: ../../source/index.rst:44
+msgid "Usage"
+msgstr ""
+
+#: ../../source/index.rst:46
+msgid "In \"Dimensions selector\" toolbar:"
+msgstr ""
+
+#: ../../source/index.rst:48
+msgid "Toggle filtering."
+msgstr ""
+
+#: ../../source/index.rst:49
+msgid ""
+"Select one dimension value in the dropdown list to filter all layers "
+"simultaneously."
+msgstr ""
+

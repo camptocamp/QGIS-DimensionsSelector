@@ -65,7 +65,7 @@ QGISDIR=.local/share/QGIS/QGIS3/profiles/default
 
 default: compile
 
-compile: $(COMPILED_RESOURCE_FILES)
+compile: $(COMPILED_RESOURCE_FILES) doc
 
 %.py : %.qrc $(RESOURCES_SRC)
 	pyrcc5 -o $*.py  $<
@@ -171,6 +171,7 @@ transup:
 	@echo "------------------------------------------------"
 	@chmod +x scripts/update-strings.sh
 	@scripts/update-strings.sh $(LOCALES)
+	make -C help gettext
 
 transcompile:
 	@echo
@@ -197,12 +198,12 @@ clean:
 cleanall: clean
 	rm -rf .build
 
-doc:
+doc: .build/requirements-dev.timestamp
 	@echo
 	@echo "------------------------------------"
 	@echo "Building documentation using sphinx."
 	@echo "------------------------------------"
-	cd help; make html
+	make -C help html
 
 check: flake8
 

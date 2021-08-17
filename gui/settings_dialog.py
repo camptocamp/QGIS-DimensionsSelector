@@ -34,6 +34,7 @@ from qgis.PyQt.QtCore import pyqtSlot, Qt, QSortFilterProxyModel, QAbstractTable
 from qgis.PyQt.QtWidgets import QHeaderView, QStyledItemDelegate, QAbstractItemView
 
 from dimensions_selector.core import Dimension, LayerDimension
+from dimensions_selector.gui.help import openHelp
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), '..', 'ui', 'settings_dialog.ui'))
@@ -296,6 +297,8 @@ class SettingsDialog(QtWidgets.QDialog, FORM_CLASS):
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
 
+        self.button_box.helpRequested.connect(self.openHelp)
+
         self.manager = manager
 
         self._dimensions_model = DimensionsTableModel([d.copy() for d in manager.dimensions()], self)
@@ -338,6 +341,9 @@ class SettingsDialog(QtWidgets.QDialog, FORM_CLASS):
         self.layerDimensionsView.setItemDelegateForColumn(field_index, FieldDelegate(layer_index, self))
         self.layerDimensionsView.horizontalHeader().resizeSections(QHeaderView.ResizeToContents)
         self.layerDimensionsView.setSelectionBehavior(QAbstractItemView.SelectRows)
+
+    def openHelp(self):
+        openHelp()
 
     def selected_dimensions_names(self):
         """
