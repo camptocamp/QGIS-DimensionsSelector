@@ -10,8 +10,9 @@ from qgis.PyQt.QtCore import QCoreApplication, QEvent
 from qgis.utils import iface
 
 from dimensions_selector.core import Dimension, LayerDimension, DimensionsManager
-from dimensions_selector.test import data_folder
-from dimensions_selector.test.utils import add_layer, init_project
+
+from test import data_folder
+from test.utils import add_layer, init_project
 
 
 class DimensionTest(unittest.TestCase):
@@ -358,8 +359,6 @@ class DimensionsManagerTest(unittest.TestCase):
 
         # Clear project and manager
         QgsProject.instance().clear()
-        self.manager.deleteLater()
-        QCoreApplication.processEvents()
 
         QgsProject.instance().read(path)
         self.manager.read()

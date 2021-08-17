@@ -1,32 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS><TS version="2.0" language="fr_FR" sourcelanguage="">
 <context>
-    <name>@default</name>
-    <message>
-        <location filename="../test/test_translations.py" line="45"/>
-        <source>Good morning</source>
-        <translation>Bonjour</translation>
-    </message>
-</context>
-<context>
     <name>DimensionsSelectorPlugin</name>
     <message>
-        <location filename="../dimensions_selector_plugin.py" line="97"/>
+        <location filename="../dimensions_selector_plugin.py" line="95"/>
         <source>Settings</source>
         <translation>Réglages</translation>
     </message>
     <message>
-        <location filename="../dimensions_selector_plugin.py" line="105"/>
+        <location filename="../dimensions_selector_plugin.py" line="103"/>
         <source>Toggle filtering</source>
         <translation>Activation du filtrage</translation>
     </message>
     <message>
-        <location filename="../dimensions_selector_plugin.py" line="122"/>
+        <location filename="../dimensions_selector_plugin.py" line="120"/>
         <source>&amp;Dimensions selector</source>
         <translation>Sélecteur de &amp;dimensions</translation>
     </message>
     <message>
-        <location filename="../dimensions_selector_plugin.py" line="94"/>
+        <location filename="../dimensions_selector_plugin.py" line="92"/>
         <source>Dimensions selector</source>
         <translation>Sélecteur de dimensions</translation>
     </message>
@@ -85,39 +77,6 @@
         <location filename="../gui/settings_dialog.py" line="195"/>
         <source>Active</source>
         <translation>Activé</translation>
-    </message>
-</context>
-<context>
-    <name>SettingsDialogBase</name>
-    <message>
-        <location filename="../ui/settings_dialog.ui" line="14"/>
-        <source>Dimensions Selector Settings</source>
-        <translation>Réglages du sélecteur de dimensions</translation>
-    </message>
-    <message>
-        <location filename="../ui/settings_dialog.ui" line="87"/>
-        <source>Add</source>
-        <translation>Ajouter</translation>
-    </message>
-    <message>
-        <location filename="../ui/settings_dialog.ui" line="94"/>
-        <source>Remove</source>
-        <translation>Retirer</translation>
-    </message>
-    <message>
-        <location filename="../ui/settings_dialog.ui" line="60"/>
-        <source>Populate</source>
-        <translation>Peupler</translation>
-    </message>
-    <message>
-        <location filename="../ui/settings_dialog.ui" line="20"/>
-        <source>Dimensions</source>
-        <translation>Dimensions</translation>
-    </message>
-    <message>
-        <location filename="../ui/settings_dialog.ui" line="74"/>
-        <source>Layers</source>
-        <translation>Couches</translation>
     </message>
 </context>
 </TS>

@@ -9,6 +9,6 @@ def openHelp():
     if locale not in ("fr"):
         locale = "en"
 
-    index_path = resource_filename("dimensions_selector", "help/build/html/{}/index.html".format(locale))
+    index_path = resource_filename("dimensions_selector", "help/{}/index.html".format(locale))
 
     QDesktopServices.openUrl(QUrl.fromLocalFile(index_path))

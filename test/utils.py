@@ -1,7 +1,8 @@
 import os
 
-from dimensions_selector.test import data_folder
 from qgis.core import QgsProject, QgsVectorLayer
+
+from test import data_folder
 
 
 def add_layer(filename, layername):

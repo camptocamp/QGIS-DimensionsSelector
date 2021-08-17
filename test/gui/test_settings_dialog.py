@@ -25,7 +25,7 @@ from dimensions_selector.gui.settings_dialog import (
     FieldDelegate,
     SettingsDialog,
 )
-from dimensions_selector.test.utils import add_layer, init_project
+from test.utils import add_layer, init_project
 
 
 class DimensionsTableModelTest(unittest.TestCase):

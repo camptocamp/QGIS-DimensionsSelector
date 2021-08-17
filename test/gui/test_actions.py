@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import QComboBox
 from dimensions_selector.core import Dimension
 from dimensions_selector.gui.actions import DimensionValuesModel, DimensionSelectorAction
 
-from dimensions_selector.test.utils import add_layer
+from test.utils import add_layer
 
 
 class DimensionValuesModelWithOptionsTest(unittest.TestCase):
