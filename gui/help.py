@@ -11,4 +11,4 @@ def openHelp():
 
     index_path = resource_filename("dimensions_selector", "help/build/html/{}/index.html".format(locale))
 
-    QDesktopServices.openUrl(QUrl("file://{}".format(index_path)))
+    QDesktopServices.openUrl(QUrl.fromLocalFile(index_path))

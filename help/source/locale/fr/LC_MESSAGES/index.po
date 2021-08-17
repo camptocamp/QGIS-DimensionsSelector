@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FloorSlider 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-08-17 14:41+0200\n"
+"POT-Creation-Date: 2021-08-17 16:07+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,7 +20,7 @@ msgstr ""
 
 #: ../../source/index.rst:7
 msgid "Dimensions Selector QGIS plugin's documentation"
-msgstr ""
+msgstr "Documentation du plugin QGIS Dimensions Selector"
 
 #: ../../source/index.rst:10
 msgid "Configuration"
@@ -38,11 +38,15 @@ msgstr "Cliquer sur le bouton **Ajouter** à côté de la table des dimensions."
 msgid ""
 "Set the **Name** value to the name of the field you want to use as a "
 "dimension, for example: \"floor\"."
-msgstr "Mettre dans le champ **Name** le nom du champ à utiliser comme dimension, par exemple : \"etage\"."
+msgstr ""
+"Mettre dans le champ **Name** le nom du champ à utiliser comme dimension,"
+" par exemple : \"etage\"."
 
 #: ../../source/index.rst:19
 msgid "Configure dimension values, using a static list of values or using a table"
-msgstr "Configurer les valeurs de dimensions, avec le liste de valeurs statiques, ou avec un table"
+msgstr ""
+"Configurer les valeurs de dimensions, avec le liste de valeurs statiques,"
+" ou avec un table"
 
 #: ../../source/index.rst:21
 msgid "If you want to enter a static list of choices:"
@@ -52,7 +56,9 @@ msgstr "Si vous souhaitez entrer une liste fixe d'options:"
 msgid ""
 "Set the **Choices** value to a commas separated list of possible values "
 "for the dimension, for example: \"value1,value2,value3,value4\"."
-msgstr "Entrez dans la colonne **Choix** une liste des valeurs possible séparées par des virgules, par exemple : \"valeur1,valeur2,valeur3,valeur4\"."
+msgstr ""
+"Entrez dans la colonne **Choix** une liste des valeurs possible séparées "
+"par des virgules, par exemple : \"valeur1,valeur2,valeur3,valeur4\"."
 
 #: ../../source/index.rst:25
 msgid "If you want to use a table of choices:"
@@ -64,49 +70,58 @@ msgstr "Sélectionnez la table source dans la colonne **Table**."
 
 #: ../../source/index.rst:28
 msgid "Select appropriated fields in columns **Value field** and **Label field**."
-msgstr "Sélectionnez les champs appropriés dans les colonnes **Champ valeur** et **Champ texte**."
+msgstr ""
+"Sélectionnez les champs appropriés dans les colonnes **Champ valeur** et "
+"**Champ texte**."
 
 #: ../../source/index.rst:31
 msgid "Configure the layers where this dimension whould apply"
-msgstr ""
+msgstr "Configurer les couches sur lesquelles la dimension doit s'appliquer"
 
 #: ../../source/index.rst:33
 msgid "Select the new dimension row in dimensions table."
 msgstr ""
+"Slectionner la ligne de la nouvelle dimension dans la table des "
+"dimensions."
 
 #: ../../source/index.rst:34
 msgid ""
 "Click populate to fillout the layers table (all layer with a \"floor\" "
 "field)."
 msgstr ""
+"Cliquer sur le bouton **Peupler** pour remplir la table des couches (avec"
+" toutes les couches qui on un champ \"etage\")."
 
 #: ../../source/index.rst:37
 msgid "Validate your configuration"
-msgstr ""
+msgstr "Valider votre configuration"
 
 #: ../../source/index.rst:39
 msgid "Click OK."
-msgstr ""
+msgstr "Cliquez sur OK."
 
 #: ../../source/index.rst:41
 msgid "Note that you still need to save you QGIS project."
-msgstr ""
+msgstr "Notez qu'il vous reste encore à sauvegarder votre projet QGIS."
 
 #: ../../source/index.rst:44
 msgid "Usage"
-msgstr ""
+msgstr "Utilisation"
 
 #: ../../source/index.rst:46
+#, fuzzy
 msgid "In \"Dimensions selector\" toolbar:"
-msgstr ""
+msgstr "Dans la barre d'outils **Sélecteur de dimensions** :"
 
 #: ../../source/index.rst:48
 msgid "Toggle filtering."
-msgstr ""
+msgstr "Basculez le filtrage"
 
 #: ../../source/index.rst:49
 msgid ""
 "Select one dimension value in the dropdown list to filter all layers "
 "simultaneously."
 msgstr ""
+"Sélectionnez une valeur pour la dimension dans la liste déroulante pour "
+"filtrer simultanément toutes les couches."
 
