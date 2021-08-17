@@ -49,6 +49,11 @@ class BaseTableModel(QAbstractTableModel):
     def items(self):
         return self._items
 
+    def clear(self):
+        self.beginResetModel()
+        self._items = []
+        self.endResetModel()
+
     def addItem(self, item):
         self.addItems([item])
 
@@ -323,6 +328,9 @@ class SettingsDialog(QtWidgets.QDialog, FORM_CLASS):
         self.layerDimensionsView.setSelectionBehavior(QAbstractItemView.SelectRows)
 
     def selected_dimensions_names(self):
+        """
+        Returns list for dimension names which are selected in dimensionsView.
+        """
         names = []
         selection = self.dimensionsView.selectionModel().selectedRows()
         for index in selection:

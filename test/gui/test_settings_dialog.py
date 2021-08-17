@@ -25,7 +25,7 @@ from dimensions_selector.gui.settings_dialog import (
     FieldDelegate,
     SettingsDialog,
 )
-from dimensions_selector.test.utils import add_layer
+from dimensions_selector.test.utils import add_layer, init_project
 
 
 class DimensionsTableModelTest(unittest.TestCase):
@@ -415,31 +415,164 @@ class SettingsDialogTest(unittest.TestCase):
     """Test dialog works."""
 
     def setUp(self):
-        """Runs before each test."""
+        self.rows = add_layer('rows.geojson', 'rows')
+        self.layer1 = add_layer('layer.geojson', 'layer1')
+        self.layer2 = add_layer('layer.geojson', 'layer2')
+
         self.manager = DimensionsManager('dimensions_selector')
-        self.dialog = SettingsDialog(self.manager, None)
+
+        self.dimensions = [
+            Dimension(name='column', options='A,B,C,D', active=True, current_value='A'),
+            Dimension(name='row', table=self.rows, value_field="id", label_field="name", active=True, current_value=1),
+        ]
+        self.manager.set_dimensions(list(self.dimensions))
+
+        layer_dimensions = [
+            LayerDimension(self.layer1, 'column', 'column', True),
+            LayerDimension(self.layer2, 'row', 'row', True),
+        ]
+        self.manager.set_layer_dimensions(self.layer1, [layer_dimensions[0]])
+        self.manager.set_layer_dimensions(self.layer2, [layer_dimensions[1]])
+
+        self.manager.set_active(True)
+
+    def dialog(self):
+        return SettingsDialog(self.manager, None)
 
     def tearDown(self):
         """Runs after each test."""
-        self.dialog = None
-        self.manager.deleteLater()
+        from qgis.core import QgsApplication, QgsProject
+        from qgis.PyQt.QtCore import QEvent
+
+        if self.manager is not None:
+            self.manager.deleteLater()
+        QgsApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+        QgsProject.instance().clear()
+
+    def test_init(self):
+        dialog = self.dialog()
+
+        self.assertEqual(len(dialog._dimensions_model.items()), 2)
+        self.assertEqual(dialog._dimensions_model.rowCount(), 2)
+        self.assertEqual(dialog.dimensionsView.model().rowCount(), 2)
+
+        self.assertEqual(len(dialog._layer_dimensions_model.items()), 2)
+        self.assertEqual(dialog._layer_dimensions_model.rowCount(), 2)
+        self.assertEqual(dialog.layerDimensionsView.model().rowCount(), 2)
 
     def test_dialog_ok(self):
         """Test we can click OK."""
-        button = self.dialog.button_box.button(QDialogButtonBox.Ok)
+        dialog = self.dialog()
+        button = dialog.button_box.button(QDialogButtonBox.Ok)
         button.click()
-        result = self.dialog.result()
+        result = dialog.result()
         self.assertEqual(result, QDialog.Accepted)
 
     def test_dialog_cancel(self):
         """Test we can click cancel."""
-        button = self.dialog.button_box.button(QDialogButtonBox.Cancel)
+        dialog = self.dialog()
+        button = dialog.button_box.button(QDialogButtonBox.Cancel)
         button.click()
-        result = self.dialog.result()
+        result = dialog.result()
         self.assertEqual(result, QDialog.Rejected)
 
+    def test_selected_dimensions_names(self):
+        dialog = self.dialog()
+        dialog.dimensionsView.selectRow(0)
+        self.assertEqual(dialog.selected_dimensions_names(), ["column"])
+
+    def test_on_dimensionsView_selectionChanged(self):
+        from qgis.PyQt.QtCore import QItemSelection, QItemSelectionModel
+
+        dialog = self.dialog()
+        dialog.dimensionsView.clearSelection()
+        self.assertEqual(dialog.layerDimensionsView.model().filterRegExp().pattern(), "")
+        self.assertEqual(dialog.layerDimensionsView.model().rowCount(), 2)
+
+        dialog.dimensionsView.selectRow(0)
+        self.assertEqual(dialog.layerDimensionsView.model().filterRegExp().pattern(), "^column$")
+        self.assertEqual(dialog.layerDimensionsView.model().rowCount(), 1)
+
+        dialog.dimensionsView.selectRow(1)
+        self.assertEqual(dialog.layerDimensionsView.model().filterRegExp().pattern(), "^row$")
+        self.assertEqual(dialog.layerDimensionsView.model().rowCount(), 1)
+
+        dialog.dimensionsView.selectionModel().select(
+            QItemSelection(
+                dialog.dimensionsView.model().index(0, 0),
+                dialog.dimensionsView.model().index(1, 3),
+            ),
+            QItemSelectionModel.ClearAndSelect,
+        )
+        self.assertEqual(dialog.layerDimensionsView.model().filterRegExp().pattern(), "^column|row$")
+        self.assertEqual(dialog.layerDimensionsView.model().rowCount(), 2)
+
     def test_on_addDimensionButton_clicked(self):
-        self.dialog.on_addDimensionButton_clicked()
+        dialog = self.dialog()
+        self.assertEqual(len(dialog._dimensions_model.items()), 2)
+        dialog.on_addDimensionButton_clicked()
+        self.assertEqual(len(dialog._dimensions_model.items()), 3)
+
+    def test_on_removeDimensionButton_clicked(self):
+        dialog = self.dialog()
+        self.assertEqual(len(dialog._dimensions_model.items()), 2)
+        dialog.dimensionsView.selectRow(0)
+        dialog.on_removeDimensionButton_clicked()
+        self.assertEqual(len(dialog._dimensions_model.items()), 1)
+
+    def test_on_populateDimensionButton_clicked(self):
+        from qgis.PyQt.QtCore import QItemSelection, QItemSelectionModel
+
+        dialog = self.dialog()
+
+        dialog.layerDimensionsView.model().sourceModel().clear()
+        dialog.dimensionsView.selectRow(0)
+        self.assertEqual(dialog.layerDimensionsView.model().rowCount(), 0)
+        dialog.on_populateDimensionButton_clicked()
+        self.assertEqual(dialog.layerDimensionsView.model().rowCount(), 2)
+
+        dialog.layerDimensionsView.model().sourceModel().clear()
+        dialog.dimensionsView.selectRow(1)
+        self.assertEqual(dialog.layerDimensionsView.model().rowCount(), 0)
+        dialog.on_populateDimensionButton_clicked()
+        self.assertEqual(dialog.layerDimensionsView.model().rowCount(), 2)
+
+        dialog.layerDimensionsView.model().sourceModel().clear()
+        dialog.dimensionsView.selectionModel().select(
+            QItemSelection(
+                dialog.dimensionsView.model().index(0, 0),
+                dialog.dimensionsView.model().index(1, 3),
+            ),
+            QItemSelectionModel.ClearAndSelect,
+        )
+        dialog.on_populateDimensionButton_clicked()
+        self.assertEqual(dialog.layerDimensionsView.model().rowCount(), 4)
+
+    def test_on_addLayerDimensionButton_clicked(self):
+        dialog = self.dialog()
+        self.assertEqual(dialog.layerDimensionsView.model().rowCount(), 2)
+        dialog.on_addLayerDimensionButton_clicked()
+        self.assertEqual(dialog.layerDimensionsView.model().rowCount(), 3)
+
+    def test_on_removeLayerDimensionButton_clicked(self):
+        dialog = self.dialog()
+        self.assertEqual(dialog.layerDimensionsView.model().rowCount(), 2)
+        dialog.layerDimensionsView.selectRow(0)
+        dialog.on_removeLayerDimensionButton_clicked()
+        self.assertEqual(dialog.layerDimensionsView.model().rowCount(), 1)
+
+    def test_accept(self):
+        dialog = self.dialog()
+
+        self.manager.set_layer_dimensions(self.layer1, [])
+        self.manager.set_layer_dimensions(self.layer2, [])
+        self.manager.set_dimensions([])
+
+        dialog.accept()
+
+        self.assertEqual(len(self.manager.dimensions()), 2)
+        self.assertEqual(len(self.manager.layer_dimensions(self.layer1)), 1)
+        self.assertEqual(len(self.manager.layer_dimensions(self.layer2)), 1)
 
 
 if __name__ == "__main__":
