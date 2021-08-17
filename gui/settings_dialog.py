@@ -125,6 +125,14 @@ class DimensionsTableModel(BaseTableModel):
             'type': QVariant.String,
             'header': self.tr("Table")
         }, {
+            'name': 'value_field',
+            'type': QVariant.String,
+            'header': self.tr("Value field")
+        }, {
+            'name': 'label_field',
+            'type': QVariant.String,
+            'header': self.tr("Label field")
+        }, {
             'name': 'active',
             'type': QVariant.Bool,
             'header': self.tr("Active")
@@ -300,6 +308,10 @@ class SettingsDialog(QtWidgets.QDialog, FORM_CLASS):
         self.dimensionsView.setModel(dimensions_proxy_model)
         table_index = self._dimensions_model.columnIndex('table')
         self.dimensionsView.setItemDelegateForColumn(table_index, LayerDelegate(self))
+        value_field_index = self._dimensions_model.columnIndex('value_field')
+        self.dimensionsView.setItemDelegateForColumn(value_field_index, FieldDelegate(table_index, self))
+        label_field_index = self._dimensions_model.columnIndex('label_field')
+        self.dimensionsView.setItemDelegateForColumn(label_field_index, FieldDelegate(table_index, self))
         self.dimensionsView.horizontalHeader().resizeSections(QHeaderView.ResizeToContents)
         self.dimensionsView.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.dimensionsView.selectionModel().selectionChanged.connect(self.on_dimensionsView_selectionChanged)

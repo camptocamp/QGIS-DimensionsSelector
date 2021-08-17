@@ -58,11 +58,13 @@ class DimensionsTableModelTest(unittest.TestCase):
         self.assertEqual(model.columnIndex("name"), 0)
         self.assertEqual(model.columnIndex("options"), 1)
         self.assertEqual(model.columnIndex("table"), 2)
-        self.assertEqual(model.columnIndex("active"), 3)
+        self.assertEqual(model.columnIndex("value_field"), 3)
+        self.assertEqual(model.columnIndex("label_field"), 4)
+        self.assertEqual(model.columnIndex("active"), 5)
 
     def test_columnCount(self):
         model = DimensionsTableModel(list(self.dimensions))
-        self.assertEqual(model.columnCount(), 4)
+        self.assertEqual(model.columnCount(), 6)
 
     def test_rowCount(self):
         model = DimensionsTableModel(list(self.dimensions))
@@ -74,39 +76,26 @@ class DimensionsTableModelTest(unittest.TestCase):
         self.assertEqual(model.headerData(0, Qt.Horizontal), "Name")
         self.assertEqual(model.headerData(1, Qt.Horizontal), "Choices")
         self.assertEqual(model.headerData(2, Qt.Horizontal), "Table")
-        self.assertEqual(model.headerData(3, Qt.Horizontal), "Active")
+        self.assertEqual(model.headerData(3, Qt.Horizontal), "Value field")
+        self.assertEqual(model.headerData(4, Qt.Horizontal), "Label field")
+        self.assertEqual(model.headerData(5, Qt.Horizontal), "Active")
 
         self.assertEqual(model.headerData(0, Qt.Vertical), "0")
         self.assertEqual(model.headerData(1, Qt.Vertical), "1")
 
     def test_flags(self):
         model = DimensionsTableModel(list(self.dimensions))
-        self.assertEqual(
-            model.flags(model.index(0, 0)),
-            Qt.ItemFlags(
-                Qt.ItemIsSelectable |
-                Qt.ItemIsEditable |
-                Qt.ItemIsEnabled
+        for column in range(5):
+            self.assertEqual(
+                model.flags(model.index(0, column)),
+                Qt.ItemFlags(
+                    Qt.ItemIsSelectable |
+                    Qt.ItemIsEditable |
+                    Qt.ItemIsEnabled
+                )
             )
-        )
         self.assertEqual(
-            model.flags(model.index(0, 1)),
-            Qt.ItemFlags(
-                Qt.ItemIsSelectable |
-                Qt.ItemIsEditable |
-                Qt.ItemIsEnabled
-            )
-        )
-        self.assertEqual(
-            model.flags(model.index(0, 2)),
-            Qt.ItemFlags(
-                Qt.ItemIsSelectable |
-                Qt.ItemIsEditable |
-                Qt.ItemIsEnabled
-            )
-        )
-        self.assertEqual(
-            model.flags(model.index(0, 3)),
+            model.flags(model.index(0, 5)),
             Qt.ItemFlags(
                 Qt.ItemIsSelectable |
                 Qt.ItemIsEditable |
@@ -121,34 +110,48 @@ class DimensionsTableModelTest(unittest.TestCase):
         self.assertEqual(model.data(model.index(0, 0), Qt.EditRole), "column")
         self.assertEqual(model.data(model.index(0, 1), Qt.DisplayRole), "A,B,C,D")
         self.assertEqual(model.data(model.index(0, 1), Qt.EditRole), "A,B,C,D")
-        self.assertEqual(model.data(model.index(0, 2), Qt.DisplayRole), "")
-        self.assertEqual(model.data(model.index(0, 2), Qt.EditRole), None)
-        self.assertEqual(model.data(model.index(0, 3), Qt.CheckStateRole), Qt.Checked)
+        self.assertEqual(model.data(model.index(0, 5), Qt.CheckStateRole), Qt.Checked)
 
         self.assertEqual(model.data(model.index(1, 0), Qt.DisplayRole), "row")
         self.assertEqual(model.data(model.index(1, 0), Qt.EditRole), "row")
-        self.assertEqual(model.data(model.index(1, 1), Qt.DisplayRole), "")
-        self.assertEqual(model.data(model.index(1, 1), Qt.EditRole), "")
         self.assertEqual(model.data(model.index(1, 2), Qt.DisplayRole), "rows")
         self.assertEqual(model.data(model.index(1, 2), Qt.EditRole), self.rows)
-        self.assertEqual(model.data(model.index(1, 3), Qt.CheckStateRole), Qt.Checked)
+        self.assertEqual(model.data(model.index(1, 3), Qt.DisplayRole), "id")
+        self.assertEqual(model.data(model.index(1, 3), Qt.EditRole), "id")
+        self.assertEqual(model.data(model.index(1, 4), Qt.DisplayRole), "name")
+        self.assertEqual(model.data(model.index(1, 4), Qt.EditRole), "name")
+        self.assertEqual(model.data(model.index(1, 5), Qt.CheckStateRole), Qt.Checked)
 
     def test_setData(self):
         dimensions = list(self.dimensions)
         model = DimensionsTableModel(dimensions)
 
-        model.setData(model.index(0, 0), "new_name", Qt.EditRole)
-        self.assertEqual(dimensions[0].name, "new_name")
+        # Choices based dimension
+        model.setData(model.index(0, 0), "new_name0", Qt.EditRole)
+        self.assertEqual(dimensions[0].name, "new_name0")
 
         model.setData(model.index(0, 1), "A,B,C,D,E", Qt.EditRole)
         self.assertEqual(dimensions[0].options, "A,B,C,D,E")
 
-        new_rows = add_layer('rows.geojson', 'new_rows')
-        model.setData(model.index(0, 2), new_rows, Qt.EditRole)
-        self.assertEqual(dimensions[0].table, new_rows)
-
-        model.setData(model.index(0, 3), Qt.Unchecked, Qt.CheckStateRole)
+        model.setData(model.index(0, 5), Qt.Unchecked, Qt.CheckStateRole)
         self.assertEqual(dimensions[0].active, False)
+
+        # Table based dimension
+        model.setData(model.index(1, 0), "new_name1", Qt.EditRole)
+        self.assertEqual(dimensions[1].name, "new_name1")
+
+        new_rows = add_layer('rows.geojson', 'new_rows')
+        model.setData(model.index(1, 2), new_rows, Qt.EditRole)
+        self.assertEqual(dimensions[1].table, new_rows)
+
+        model.setData(model.index(1, 3), "name", Qt.EditRole)
+        self.assertEqual(dimensions[1].value_field, "name")
+
+        model.setData(model.index(1, 4), "id", Qt.EditRole)
+        self.assertEqual(dimensions[1].label_field, "id")
+
+        model.setData(model.index(1, 5), Qt.Unchecked, Qt.CheckStateRole)
+        self.assertEqual(dimensions[1].active, False)
 
 
 class LayerDimensionsTableModelTest(unittest.TestCase):
@@ -500,7 +503,7 @@ class SettingsDialogTest(unittest.TestCase):
         dialog.dimensionsView.selectionModel().select(
             QItemSelection(
                 dialog.dimensionsView.model().index(0, 0),
-                dialog.dimensionsView.model().index(1, 3),
+                dialog.dimensionsView.model().index(1, 5),
             ),
             QItemSelectionModel.ClearAndSelect,
         )
@@ -541,7 +544,7 @@ class SettingsDialogTest(unittest.TestCase):
         dialog.dimensionsView.selectionModel().select(
             QItemSelection(
                 dialog.dimensionsView.model().index(0, 0),
-                dialog.dimensionsView.model().index(1, 3),
+                dialog.dimensionsView.model().index(1, dialog._dimensions_model.columnCount() - 1),
             ),
             QItemSelectionModel.ClearAndSelect,
         )
