@@ -112,7 +112,7 @@ package: compile
 	@echo "------------------------------------"
 	mkdir -p dist
 	rm -f dist/$(PLUGINNAME).zip
-	zip dist/$(PLUGINNAME).zip -r $(PLUGINNAME)
+	zip dist/$(PLUGINNAME).zip -r $(PLUGINNAME) -x '*/__pycache__/*'
 	echo "Created package: dist/$(PLUGINNAME).zip"
 
 transup:
