@@ -20,7 +20,7 @@ Configure dimension values, using a static list of values or using a table
 
 If you want to enter a static list of choices:
 
-* Set the **Choices** value to a commas separated list of possible values for the dimension, for example: "value1,value2,value3,value4".
+* Set the **Choices** value to a comma separated list of possible values for the dimension, for example: "value1,value2,value3,value4".
 
 If you want to use a table of choices:
 

@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: FloorSlider 0.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-08-17 16:07+0200\n"
+"POT-Creation-Date: 2021-08-18 13:34+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -54,7 +54,7 @@ msgstr "Si vous souhaitez entrer une liste fixe d'options:"
 
 #: ../../source/index.rst:23
 msgid ""
-"Set the **Choices** value to a commas separated list of possible values "
+"Set the **Choices** value to a comma separated list of possible values "
 "for the dimension, for example: \"value1,value2,value3,value4\"."
 msgstr ""
 "Entrez dans la colonne **Choix** une liste des valeurs possible séparées "
@@ -109,9 +109,8 @@ msgid "Usage"
 msgstr "Utilisation"
 
 #: ../../source/index.rst:46
-#, fuzzy
 msgid "In \"Dimensions selector\" toolbar:"
-msgstr "Dans la barre d'outils **Sélecteur de dimensions** :"
+msgstr "Dans la barre d'outils \"Sélecteur de dimensions\" :"
 
 #: ../../source/index.rst:48
 msgid "Toggle filtering."
