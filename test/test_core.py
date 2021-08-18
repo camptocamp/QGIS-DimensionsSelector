@@ -6,7 +6,7 @@ import unittest
 from unittest.mock import patch, Mock
 
 from qgis.core import QgsApplication, QgsProject
-from qgis.PyQt.QtCore import QCoreApplication, QEvent
+from qgis.PyQt.QtCore import QEvent
 from qgis.utils import iface
 
 from dimensions_selector.core import Dimension, LayerDimension, DimensionsManager
@@ -24,7 +24,7 @@ class DimensionTest(unittest.TestCase):
         dim = Dimension()
         assert dim.name == ""
         assert dim.options == ""
-        assert dim.table == None
+        assert dim.table is None
         assert dim.active is True
 
     def test_toDict(self):

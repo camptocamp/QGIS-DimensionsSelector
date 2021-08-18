@@ -8,7 +8,16 @@ from qgis.PyQt.QtCore import QObject, pyqtSignal
 
 class Dimension():
 
-    def __init__(self, name="", options="", table=None, value_field="", label_field="", active=True, current_value=""):
+    def __init__(
+        self,
+        name="",
+        options="",
+        table=None,
+        value_field="",
+        label_field="",
+        active=True,
+        current_value="",
+    ):
         self.name = name
         self.options = options
         self.table = table

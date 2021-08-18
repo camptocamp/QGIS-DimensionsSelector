@@ -25,7 +25,7 @@ from dimensions_selector.gui.settings_dialog import (
     FieldDelegate,
     SettingsDialog,
 )
-from test.utils import add_layer, init_project
+from test.utils import add_layer
 
 
 class DimensionsTableModelTest(unittest.TestCase):
@@ -426,7 +426,14 @@ class SettingsDialogTest(unittest.TestCase):
 
         self.dimensions = [
             Dimension(name='column', options='A,B,C,D', active=True, current_value='A'),
-            Dimension(name='row', table=self.rows, value_field="id", label_field="name", active=True, current_value=1),
+            Dimension(
+                name='row',
+                table=self.rows,
+                value_field="id",
+                label_field="name",
+                active=True,
+                current_value=1,
+            ),
         ]
         self.manager.set_dimensions(list(self.dimensions))
 
