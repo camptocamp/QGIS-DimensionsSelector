@@ -28,25 +28,16 @@
 # LOCALES = af
 LOCALES = fr
 
-# If locales are enabled, set the name of the lrelease binary on your system. If
-# you have trouble compiling the translations, you may have to specify the full path to
-# lrelease
-LRELEASE = lrelease
-
-
 # translation
 
 PLUGINNAME = dimensions_selector
-
-PY_FILES = __init__.py dimensions_selector_plugin.py $(shell find core gui -name "*.py")
-
-UI_FILES = $(shell find ui -name "*.ui")
 
 EXTRAS = metadata.txt icon.png
 
 EXTRA_DIRS =
 
-COMPILED_RESOURCE_FILES = resources.py
+PYTHON_FILES = $(shell find $(PLUGINNAME) -name *.py)
+COMPILED_RESOURCE_FILES = $(PLUGINNAME)/resources.py
 
 PEP8EXCLUDE=pydev,resources.py,conf.py,third_party,ui
 
@@ -65,7 +56,7 @@ QGISDIR=.local/share/QGIS/QGIS3/profiles/default
 
 default: compile
 
-compile: $(COMPILED_RESOURCE_FILES)
+compile: $(COMPILED_RESOURCE_FILES) doc
 
 %.py : %.qrc $(RESOURCES_SRC)
 	pyrcc5 -o $*.py  $<
@@ -73,8 +64,8 @@ compile: $(COMPILED_RESOURCE_FILES)
 %.qm : %.ts
 	$(LRELEASE) $<
 
-link:
-	ln -s $(shell pwd) ~/.local/share/QGIS/QGIS3/profiles/default/python/plugins/dimensions_selector
+link: derase
+	ln -s $(shell pwd)/$(PLUGINNAME) $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
 
 test: compile transcompile .build/requirements-dev.timestamp
 	@echo
@@ -87,7 +78,9 @@ test: compile transcompile .build/requirements-dev.timestamp
 	@-export PYTHONPATH=`pwd`:$(PYTHONPATH); \
 		export QGIS_DEBUG=0; \
 		export QGIS_LOG_FILE=/dev/null; \
-		.build/venv/bin/nosetests -v --with-id --with-coverage --cover-package=. test \
+		.build/venv/bin/nosetests -v --with-id --with-coverage --cover-erase \
+			--cover-package=$(PLUGINNAME) \
+			./test \
 			3>&1 1>&2 2>&3 3>&- || true
 	@echo "----------------------"
 	@echo "If you get a 'no module named qgis.core error, try sourcing"
@@ -95,7 +88,7 @@ test: compile transcompile .build/requirements-dev.timestamp
 	@echo "e.g. source run-env-linux.sh <path to qgis install>; make test"
 	@echo "----------------------"
 
-deploy: compile  transcompile
+deploy: package derase
 	@echo
 	@echo "------------------------------------------------"
 	@echo "Deploying plugin to your QGIS profile directory."
@@ -103,26 +96,7 @@ deploy: compile  transcompile
 	# The deploy  target only works on unix like operating system where
 	# the Python plugin directory is located at:
 	# $$HOME/$(QGISDIR)/python/plugins
-	rm -rf $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
-	mkdir -p $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
-	cp -vf --parents $(PY_FILES) $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
-	cp -vf --parents $(UI_FILES) $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
-	cp -vf --parents $(COMPILED_RESOURCE_FILES) $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
-	cp -vf --parents $(EXTRAS) $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
-	cp -vfr i18n $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
-	cp -vfr $(HELP) $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)/help
-	# Copy extra directories if any
-	# for EXTRA_DIR in "$(EXTRA_DIRS)"; do cp -R $(EXTRA_DIR) $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)/; done
-
-# The dclean target removes compiled python files from plugin directory
-# also deletes any .git entry
-dclean:
-	@echo
-	@echo "-----------------------------------"
-	@echo "Removing any compiled python files."
-	@echo "-----------------------------------"
-	find $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME) -iname "*.pyc" -delete
-	find $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME) -iname ".git" -prune -exec rm -Rf {} \;
+	unzip dist/$(PLUGINNAME).zip -d $(HOME)/$(QGISDIR)/python/plugins/
 
 derase:
 	@echo
@@ -130,78 +104,57 @@ derase:
 	@echo "Removing deployed plugin."
 	@echo "-------------------------"
 	rm -Rf $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
-	ln -s . $(HOME)/$(QGISDIR)/python/plugins/
-
-zip: deploy dclean
-	@echo
-	@echo "---------------------------"
-	@echo "Creating plugin zip bundle."
-	@echo "---------------------------"
-	# The zip target deploys the plugin and creates a zip file with the deployed
-	# content. You can then upload the zip file on http://plugins.qgis.org
-	rm -f $(PLUGINNAME).zip
-	cd $(HOME)/$(QGISDIR)/python/plugins; zip -9r $(CURDIR)/$(PLUGINNAME).zip $(PLUGINNAME)
 
 package: compile
-	# Create a zip package of the plugin named $(PLUGINNAME).zip.
-	# This requires use of git (your plugin development directory must be a
-	# git repository).
-	# To use, pass a valid commit or tag as follows:
-	#   make package VERSION=Version_0.3.2
 	@echo
 	@echo "------------------------------------"
 	@echo "Exporting plugin to zip package.	"
 	@echo "------------------------------------"
-	rm -f $(PLUGINNAME).zip
-	git archive --prefix=$(PLUGINNAME)/ -o $(PLUGINNAME).zip $(VERSION)
-	echo "Created package: $(PLUGINNAME).zip"
-
-upload: zip
-	@echo
-	@echo "-------------------------------------"
-	@echo "Uploading plugin to QGIS Plugin repo."
-	@echo "-------------------------------------"
-	$(PLUGIN_UPLOAD) $(PLUGINNAME).zip
+	mkdir -p dist
+	rm -f dist/$(PLUGINNAME).zip
+	zip dist/$(PLUGINNAME).zip -r $(PLUGINNAME) -x '*/__pycache__/*'
+	echo "Created package: dist/$(PLUGINNAME).zip"
 
 transup:
 	@echo
 	@echo "------------------------------------------------"
 	@echo "Updating translation files with any new strings."
 	@echo "------------------------------------------------"
-	@chmod +x scripts/update-strings.sh
-	@scripts/update-strings.sh $(LOCALES)
+	pylupdate4 -noobsolete $(PYTHON_FILES) -ts $(PLUGINNAME)/i18n/fr.ts
+	make -C help gettext
 
 transcompile:
 	@echo
 	@echo "----------------------------------------"
 	@echo "Compiled translation files to .qm files."
 	@echo "----------------------------------------"
-	@chmod +x scripts/compile-strings.sh
-	@scripts/compile-strings.sh $(LRELEASE) $(LOCALES)
+	lrelease $(PLUGINNAME)/i18n/fr.ts
 
 transclean:
 	@echo
 	@echo "------------------------------------"
 	@echo "Removing compiled translation files."
 	@echo "------------------------------------"
-	rm -f i18n/*.qm
+	rm -f $(PLUGINNAME)/i18n/*.qm
 
-clean:
+clean: transclean
 	@echo
 	@echo "------------------------------------"
 	@echo "Removing uic and rcc generated files"
 	@echo "------------------------------------"
-	rm $(COMPILED_UI_FILES) $(COMPILED_RESOURCE_FILES)
+	rm $(COMPILED_RESOURCE_FILES)
+	rm -rf $(PLUGINNAME)/help
 
 cleanall: clean
 	rm -rf .build
 
-doc:
+doc: .build/requirements-dev.timestamp
 	@echo
 	@echo "------------------------------------"
 	@echo "Building documentation using sphinx."
 	@echo "------------------------------------"
-	cd help; make html
+	make -C help html
+	cp -r help/build/html/* $(PLUGINNAME)/help/
 
 check: flake8
 

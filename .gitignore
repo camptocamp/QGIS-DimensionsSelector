@@ -2,4 +2,9 @@
 *.qm
 *~
 /.build
-/resources.py
+/.coverage
+/.noseids
+/dimensions_selector/help
+/dimensions_selector/resources.py
+/dist
+/test/data/project.qgs

@@ -12,8 +12,9 @@ __author__ = 'ismailsunni@yahoo.co.id'
 __date__ = '12/10/2011'
 __copyright__ = ('Copyright 2012, Australia Indonesia Facility for '
                  'Disaster Reduction')
-import unittest
 import os
+import unittest
+from pkg_resources import resource_filename
 
 from qgis.PyQt.QtCore import QCoreApplication, QTranslator
 
@@ -33,16 +34,15 @@ class SafeTranslationsTest(unittest.TestCase):
 
     def test_qgis_translations(self):
         """Test that translations work."""
-        parent_path = os.path.join(__file__, os.path.pardir, os.path.pardir)
-        dir_path = os.path.abspath(parent_path)
-        file_path = os.path.join(
-            dir_path, 'i18n', 'fr.qm')
+        file_path = resource_filename("dimensions_selector", "i18n/fr.qm")
+        self.assertTrue(os.path.isfile(file_path))
+
         translator = QTranslator()
         translator.load(file_path)
         QCoreApplication.installTranslator(translator)
 
-        expected_message = 'Bonjour'
-        real_message = QCoreApplication.translate("@default", 'Good morning')
+        expected_message = 'Réglages'
+        real_message = QCoreApplication.translate("DimensionsSelectorPlugin", 'Settings')
         self.assertEqual(real_message, expected_message)
 
 

@@ -22,6 +22,7 @@
  ***************************************************************************/
 """
 import os.path
+from pkg_resources import resource_filename
 
 from qgis.core import QgsApplication
 
@@ -54,10 +55,7 @@ class DimensionsSelectorPlugin():
         self.plugin_dir = os.path.dirname(__file__)
         # initialize locale
         locale = QSettings().value('locale/userLocale')[0:2]
-        locale_path = os.path.join(
-            self.plugin_dir,
-            'i18n',
-            'DimensionsSelector_{}.qm'.format(locale))
+        locale_path = resource_filename("dimensions_selector", "i18n/{}.qm".format(locale))
 
         if os.path.exists(locale_path):
             self.translator = QTranslator()
@@ -69,10 +67,6 @@ class DimensionsSelectorPlugin():
         # Declare instance attributes
         self.actions = []
         self.dimensionsSelectors = []
-
-        self.menu = self.tr(u'&Dimensions Selector')
-        self.toolbar = self.iface.addToolBar(u'DimensionsSelector')
-        self.toolbar.setObjectName(u'DimensionsSelector')
 
         self.manager = DimensionsManager('dimensions_selector', iface.mainWindow())
         self.manager.configurationChanged.connect(self.configurationChanged)
@@ -90,10 +84,14 @@ class DimensionsSelectorPlugin():
         :rtype: QString
         """
         # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
-        return QCoreApplication.translate('DimensionsSelector', message)
+        return QCoreApplication.translate('DimensionsSelectorPlugin', message)
 
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
+        self.menu = self.tr(u'&Dimensions selector')
+        self.toolbar = self.iface.addToolBar(self.tr(u'Dimensions selector'))
+        self.toolbar.setObjectName(u'DimensionsSelector')
+
         settings_action = QAction(QgsApplication.getThemeIcon("/propertyicons/settings.svg"),
                                   self.tr('Settings'),
                                   self.iface.mainWindow())
@@ -120,7 +118,7 @@ class DimensionsSelectorPlugin():
         self.manager.deleteLater()
         for action in self.actions:
             self.iface.removePluginMenu(
-                self.tr(u'&Dimensions Selector'),
+                self.tr(u'&Dimensions selector'),
                 action)
             self.iface.removeToolBarIcon(action)
         # remove the toolbar

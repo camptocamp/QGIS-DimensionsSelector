@@ -8,26 +8,62 @@ from qgis.PyQt.QtCore import QObject, pyqtSignal
 
 class Dimension():
 
-    def __init__(self, name, options, active, current_value):
+    def __init__(
+        self,
+        name="",
+        options="",
+        table=None,
+        value_field="",
+        label_field="",
+        active=True,
+        current_value="",
+    ):
         self.name = name
         self.options = options
+        self.table = table
+        self.value_field = value_field
+        self.label_field = label_field
         self.active = active
         self.current_value = current_value
 
     def toDict(self):
-        return self.__dict__
+        dict_ = self.__dict__.copy()
+        if self.table is not None:
+            dict_["table"] = self.table.id()
+        return dict_
 
     @classmethod
     def fromDict(cls, dict_):
+        dict_ = dict_.copy()
+        table_id = dict_.get("table", None)
+        if table_id is not None:
+            dict_["table"] = QgsProject.instance().mapLayer(table_id)
         return cls(**dict_)
 
     def copy(self):
         return Dimension.fromDict(self.toDict())
 
+    def getOptions(self):
+        """
+        Returns options as tuple(value, label).
+        """
+        if self.table is None:
+            return [(v, v) for v in self.options.split(",")]
+        else:
+            options = []
+            for f in self.table.getFeatures():
+                options.append(
+                    (
+                        f.attribute(self.value_field),
+                        f.attribute(self.label_field),
+                    )
+                )
+            return options  # sorted(options, key=lambda o, o[1])
+
 
 class LayerDimension():
 
-    def __init__(self, layer, name, field, active):
+    def __init__(self, layer=None, name="", field="", active=True):
         self.layer = layer
         self.name = name
         self.field = field
@@ -88,7 +124,8 @@ class DimensionsManager(QObject):
         QgsProject.instance().writeEntry(
             self.scope,
             'dimensions',
-            json.dumps([d.toDict() for d in self._dimensions]))
+            json.dumps([d.toDict() for d in self._dimensions]),
+        )
 
     def saved(self):
         self.refresh_filters()

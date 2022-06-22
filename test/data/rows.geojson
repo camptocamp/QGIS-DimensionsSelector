@@ -1,0 +1,10 @@
+{
+"type": "FeatureCollection",
+"name": "rows",
+"features": [
+{ "type": "Feature", "properties": { "id": 1, "name": "first" }, "geometry": null },
+{ "type": "Feature", "properties": { "id": 2, "name": "second" }, "geometry": null },
+{ "type": "Feature", "properties": { "id": 3, "name": "third" }, "geometry": null },
+{ "type": "Feature", "properties": { "id": 4, "name": "fourth" }, "geometry": null },
+]
+}

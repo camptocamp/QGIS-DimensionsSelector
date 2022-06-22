@@ -34,6 +34,7 @@ from qgis.PyQt.QtCore import pyqtSlot, Qt, QSortFilterProxyModel, QAbstractTable
 from qgis.PyQt.QtWidgets import QHeaderView, QStyledItemDelegate, QAbstractItemView
 
 from dimensions_selector.core import Dimension, LayerDimension
+from dimensions_selector.gui.help import openHelp
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), '..', 'ui', 'settings_dialog.ui'))
@@ -48,6 +49,11 @@ class BaseTableModel(QAbstractTableModel):
 
     def items(self):
         return self._items
+
+    def clear(self):
+        self.beginResetModel()
+        self._items = []
+        self.endResetModel()
 
     def addItem(self, item):
         self.addItems([item])
@@ -89,7 +95,7 @@ class BaseTableModel(QAbstractTableModel):
             if orientation == Qt.Horizontal:
                 return self._columns[section]['header']
             if orientation == Qt.Vertical:
-                return section
+                return str(section)
 
     def flags(self, index):
         column_def = self._columns[index.column()]
@@ -116,6 +122,18 @@ class DimensionsTableModel(BaseTableModel):
             'type': QVariant.String,
             'header': self.tr("Choices")
         }, {
+            'name': 'table',
+            'type': QVariant.String,
+            'header': self.tr("Table")
+        }, {
+            'name': 'value_field',
+            'type': QVariant.String,
+            'header': self.tr("Value field")
+        }, {
+            'name': 'label_field',
+            'type': QVariant.String,
+            'header': self.tr("Label field")
+        }, {
             'name': 'active',
             'type': QVariant.Bool,
             'header': self.tr("Active")
@@ -127,6 +145,8 @@ class DimensionsTableModel(BaseTableModel):
             column_def = self._columns[index.column()]
             if column_def['type'] == QVariant.Bool:
                 return ''
+            if column_def['name'] == 'table':
+                return item.table.name() if item.table is not None else ''
             return getattr(item, column_def['name'])
         if role == Qt.EditRole:
             item = self._items[index.row()]
@@ -277,6 +297,8 @@ class SettingsDialog(QtWidgets.QDialog, FORM_CLASS):
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
 
+        self.button_box.helpRequested.connect(self.openHelp)
+
         self.manager = manager
 
         self._dimensions_model = DimensionsTableModel([d.copy() for d in manager.dimensions()], self)
@@ -287,6 +309,12 @@ class SettingsDialog(QtWidgets.QDialog, FORM_CLASS):
 
         self.dimensionsView.setSortingEnabled(True)
         self.dimensionsView.setModel(dimensions_proxy_model)
+        table_index = self._dimensions_model.columnIndex('table')
+        self.dimensionsView.setItemDelegateForColumn(table_index, LayerDelegate(self))
+        value_field_index = self._dimensions_model.columnIndex('value_field')
+        self.dimensionsView.setItemDelegateForColumn(value_field_index, FieldDelegate(table_index, self))
+        label_field_index = self._dimensions_model.columnIndex('label_field')
+        self.dimensionsView.setItemDelegateForColumn(label_field_index, FieldDelegate(table_index, self))
         self.dimensionsView.horizontalHeader().resizeSections(QHeaderView.ResizeToContents)
         self.dimensionsView.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.dimensionsView.selectionModel().selectionChanged.connect(self.on_dimensionsView_selectionChanged)
@@ -314,7 +342,13 @@ class SettingsDialog(QtWidgets.QDialog, FORM_CLASS):
         self.layerDimensionsView.horizontalHeader().resizeSections(QHeaderView.ResizeToContents)
         self.layerDimensionsView.setSelectionBehavior(QAbstractItemView.SelectRows)
 
+    def openHelp(self):
+        openHelp()
+
     def selected_dimensions_names(self):
+        """
+        Returns list for dimension names which are selected in dimensionsView.
+        """
         names = []
         selection = self.dimensionsView.selectionModel().selectedRows()
         for index in selection:
@@ -333,7 +367,7 @@ class SettingsDialog(QtWidgets.QDialog, FORM_CLASS):
 
     @pyqtSlot(name='on_addDimensionButton_clicked')
     def on_addDimensionButton_clicked(self):
-        self._dimensions_model.addItem(Dimension('', '', True, ''))
+        self._dimensions_model.addItem(Dimension())
 
     @pyqtSlot(name='on_removeDimensionButton_clicked')
     def on_removeDimensionButton_clicked(self):
