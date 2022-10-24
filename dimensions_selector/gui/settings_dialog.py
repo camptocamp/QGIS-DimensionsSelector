@@ -25,7 +25,7 @@
 import os
 import itertools
 
-from qgis.core import QgsProject, QgsMapLayerProxyModel
+from qgis.core import QgsProject, QgsMapLayerProxyModel, QgsRasterLayer
 from qgis.gui import QgsMapLayerComboBox, QgsFieldComboBox
 
 from qgis.PyQt import uic
@@ -382,6 +382,8 @@ class SettingsDialog(QtWidgets.QDialog, FORM_CLASS):
         items = []
         for name in self.selected_dimensions_names():
             for id, layer in QgsProject.instance().mapLayers().items():
+                if isinstance(layer, QgsRasterLayer):
+                    continue
                 if layer.fields().lookupField(name) == -1:
                     continue
                 if self._layer_dimensions_model.hasItem(layer, name):
