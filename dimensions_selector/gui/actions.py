@@ -42,11 +42,15 @@ class DimensionSelectorAction(QWidgetAction):
     def createWidget(self, parent):
         widget = QComboBox(parent)
         widget.setModel(self._model)
-        index = widget.findData(self._dimension.current_value, role=Qt.ItemDataRole.EditRole)
+        index = widget.findData(
+            self._dimension.current_value, role=Qt.ItemDataRole.EditRole
+        )
         widget.setCurrentIndex(index)
         widget.currentIndexChanged.connect(self.onSelectionChange)
         return widget
 
     def onSelectionChange(self, index):
-        self._dimension.current_value = self.sender().currentData(Qt.ItemDataRole.EditRole)
+        self._dimension.current_value = self.sender().currentData(
+            Qt.ItemDataRole.EditRole
+        )
         self.valueChanged.emit()

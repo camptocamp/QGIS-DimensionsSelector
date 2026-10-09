@@ -21,6 +21,7 @@
  *                                                                         *
  ***************************************************************************/
 """
+
 import os.path
 
 from qgis.core import QgsApplication
@@ -33,7 +34,7 @@ from .gui.actions import DimensionSelectorAction
 from .gui.settings_dialog import SettingsDialog
 
 
-class DimensionsSelectorPlugin():
+class DimensionsSelectorPlugin:
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
@@ -49,21 +50,21 @@ class DimensionsSelectorPlugin():
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
         # initialize locale
-        locale = QSettings().value('locale/userLocale')[0:2]
-        locale_path = os.path.join(self.plugin_dir, 'i18n', '{}.qm'.format(locale))
+        locale = QSettings().value("locale/userLocale")[0:2]
+        locale_path = os.path.join(self.plugin_dir, "i18n", "{}.qm".format(locale))
 
         if os.path.exists(locale_path):
             self.translator = QTranslator()
             self.translator.load(locale_path)
 
-            if qVersion() > '4.3.3':
+            if qVersion() > "4.3.3":
                 QCoreApplication.installTranslator(self.translator)
 
         # Declare instance attributes
         self.actions = []
         self.dimensionsSelectors = []
 
-        self.manager = DimensionsManager('dimensions_selector', iface.mainWindow())
+        self.manager = DimensionsManager("dimensions_selector", iface.mainWindow())
         self.manager.configurationChanged.connect(self.configurationChanged)
 
     # noinspection PyMethodMayBeStatic
@@ -79,25 +80,29 @@ class DimensionsSelectorPlugin():
         :rtype: QString
         """
         # noinspection PyTypeChecker,PyArgumentList,PyCallByClass
-        return QCoreApplication.translate('DimensionsSelectorPlugin', message)
+        return QCoreApplication.translate("DimensionsSelectorPlugin", message)
 
     def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
-        self.menu = self.tr(u'&Dimensions selector')
-        self.toolbar = self.iface.addToolBar(self.tr(u'Dimensions selector'))
-        self.toolbar.setObjectName(u'DimensionsSelector')
+        self.menu = self.tr("&Dimensions selector")
+        self.toolbar = self.iface.addToolBar(self.tr("Dimensions selector"))
+        self.toolbar.setObjectName("DimensionsSelector")
 
-        settings_action = QAction(QgsApplication.getThemeIcon("/propertyicons/settings.svg"),
-                                  self.tr('Settings'),
-                                  self.iface.mainWindow())
+        settings_action = QAction(
+            QgsApplication.getThemeIcon("/propertyicons/settings.svg"),
+            self.tr("Settings"),
+            self.iface.mainWindow(),
+        )
         settings_action.triggered.connect(self.showSettings)
         self.iface.addPluginToMenu(self.menu, settings_action)
         self.toolbar.addAction(settings_action)
         self.actions.append(settings_action)
 
-        active_action = QAction(QgsApplication.getThemeIcon("/mActionFilter2.svg"),
-                                self.tr('Toggle filtering'),
-                                self.iface.mainWindow())
+        active_action = QAction(
+            QgsApplication.getThemeIcon("/mActionFilter2.svg"),
+            self.tr("Toggle filtering"),
+            self.iface.mainWindow(),
+        )
         active_action.setCheckable(True)
         active_action.setChecked(self.manager.active())
         active_action.toggled.connect(self.set_active)
@@ -112,9 +117,7 @@ class DimensionsSelectorPlugin():
         self.manager.restore_subset_strings()
         self.manager.deleteLater()
         for action in self.actions:
-            self.iface.removePluginMenu(
-                self.tr(u'&Dimensions selector'),
-                action)
+            self.iface.removePluginMenu(self.tr("&Dimensions selector"), action)
             self.iface.removeToolBarIcon(action)
         # remove the toolbar
         del self.toolbar

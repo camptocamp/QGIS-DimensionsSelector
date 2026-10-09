@@ -17,7 +17,7 @@ from test.utils import add_layer, init_project
 class DimensionTest(unittest.TestCase):
     def setUp(self):
         """Runs before each test."""
-        self.rows = add_layer('rows.geojson', 'rows')
+        self.rows = add_layer("rows.geojson", "rows")
 
     def test_init(self):
         dim = Dimension()
@@ -62,15 +62,17 @@ class DimensionTest(unittest.TestCase):
         }
 
     def test_fromDict(self):
-        dim = Dimension.fromDict({
-            "name": "dimension_with_options",
-            "options": "A,B,C,D",
-            "table": None,
-            "value_field": "",
-            "label_field": "",
-            "active": True,
-            "current_value": "",
-        })
+        dim = Dimension.fromDict(
+            {
+                "name": "dimension_with_options",
+                "options": "A,B,C,D",
+                "table": None,
+                "value_field": "",
+                "label_field": "",
+                "active": True,
+                "current_value": "",
+            }
+        )
         assert dim.name == "dimension_with_options"
         assert dim.options == "A,B,C,D"
         assert dim.table is None
@@ -79,15 +81,17 @@ class DimensionTest(unittest.TestCase):
         assert dim.active is True
         assert dim.current_value == ""
 
-        dim = Dimension.fromDict({
-            "name": "dimension_with_options",
-            "options": "",
-            "table": self.rows.id(),
-            "value_field": "id",
-            "label_field": "name",
-            "active": True,
-            "current_value": 1,
-        })
+        dim = Dimension.fromDict(
+            {
+                "name": "dimension_with_options",
+                "options": "",
+                "table": self.rows.id(),
+                "value_field": "id",
+                "label_field": "name",
+                "active": True,
+                "current_value": 1,
+            }
+        )
         assert dim.name == "dimension_with_options"
         assert dim.options == ""
         assert dim.table is self.rows
@@ -131,14 +135,19 @@ class DimensionTest(unittest.TestCase):
             active=True,
             current_value=1,
         )
-        assert dim.getOptions() == [(1, "first"), (2, "second"), (3, "third"), (4, "fourth")]
+        assert dim.getOptions() == [
+            (1, "first"),
+            (2, "second"),
+            (3, "third"),
+            (4, "fourth"),
+        ]
 
 
 class LayerDimensionTest(unittest.TestCase):
 
     def setUp(self):
         """Runs before each test."""
-        self.layer = add_layer('layer.geojson', 'layer1')
+        self.layer = add_layer("layer.geojson", "layer1")
 
     def test_init(self):
         layer_dim = LayerDimension()
@@ -184,10 +193,10 @@ class DimensionsManagerTest(unittest.TestCase):
         """Runs before each test."""
         self.manager = None
         init_project()
-        self.rows = QgsProject.instance().mapLayersByName('rows')[0]
-        self.layer1 = QgsProject.instance().mapLayersByName('layer1')[0]
-        self.layer2 = QgsProject.instance().mapLayersByName('layer2')[0]
-        self.layer2.setSubsetString('"row" = \'1\'')
+        self.rows = QgsProject.instance().mapLayersByName("rows")[0]
+        self.layer1 = QgsProject.instance().mapLayersByName("layer1")[0]
+        self.layer2 = QgsProject.instance().mapLayersByName("layer2")[0]
+        self.layer2.setSubsetString("\"row\" = '1'")
         self._assert_setup_state()
 
     def tearDown(self):
@@ -200,20 +209,20 @@ class DimensionsManagerTest(unittest.TestCase):
     def _assert_setup_state(self, project=None):
         if project is None:
             project = QgsProject.instance()
-        rows = project.mapLayersByName('rows')[0]
-        layer1 = project.mapLayersByName('layer1')[0]
-        layer2 = project.mapLayersByName('layer2')[0]
+        rows = project.mapLayersByName("rows")[0]
+        layer1 = project.mapLayersByName("layer1")[0]
+        layer2 = project.mapLayersByName("layer2")[0]
 
         self.assertEqual(4, rows.featureCount())
 
-        self.assertEqual('', layer1.subsetString())
+        self.assertEqual("", layer1.subsetString())
         self.assertEqual(16, layer1.featureCount())
 
-        self.assertEqual('"row" = \'1\'', layer2.subsetString())
+        self.assertEqual("\"row\" = '1'", layer2.subsetString())
         self.assertEqual(4, layer2.featureCount())
 
     def _init_manager(self):
-        self.manager = DimensionsManager('dimensions_selector', iface.mainWindow())
+        self.manager = DimensionsManager("dimensions_selector", iface.mainWindow())
 
     def _init_dimensions(self):
         if self.manager is None:
@@ -224,17 +233,17 @@ class DimensionsManagerTest(unittest.TestCase):
         # One dimension with static options
         dimensions.append(
             Dimension(
-                name='column',
-                options='A,B,C,D',
+                name="column",
+                options="A,B,C,D",
                 active=True,
-                current_value='A',
+                current_value="A",
             )
         )
 
         # One dimension with table
         dimensions.append(
             Dimension(
-                name='row',
+                name="row",
                 table=self.rows,
                 value_field="id",
                 label_field="name",
@@ -247,16 +256,12 @@ class DimensionsManagerTest(unittest.TestCase):
 
         for layer in (self.layer1, self.layer2):
             layer_dimensions = self.manager.layer_dimensions(layer)
-            layer_dimensions.append(
-                LayerDimension(layer, 'column', 'column', True)
-            )
+            layer_dimensions.append(LayerDimension(layer, "column", "column", True))
             self.manager.set_layer_dimensions(layer, layer_dimensions)
 
         for layer in (self.layer1,):
             layer_dimensions = self.manager.layer_dimensions(layer)
-            layer_dimensions.append(
-                LayerDimension(layer, 'row', 'row', True)
-            )
+            layer_dimensions.append(LayerDimension(layer, "row", "row", True))
             self.manager.set_layer_dimensions(layer, layer_dimensions)
 
         self.manager.set_active(True)
@@ -266,9 +271,9 @@ class DimensionsManagerTest(unittest.TestCase):
     def _assert_initial_dimensions_state(self):
         self.assertTrue(self.manager.active())
 
-        self.rows = QgsProject.instance().mapLayersByName('rows')[0]
-        self.layer1 = QgsProject.instance().mapLayersByName('layer1')[0]
-        self.layer2 = QgsProject.instance().mapLayersByName('layer2')[0]
+        self.rows = QgsProject.instance().mapLayersByName("rows")[0]
+        self.layer1 = QgsProject.instance().mapLayersByName("layer1")[0]
+        self.layer2 = QgsProject.instance().mapLayersByName("layer2")[0]
 
         dimensions = self.manager.dimensions()
         self.assertEqual(len(dimensions), 2)
@@ -285,14 +290,18 @@ class DimensionsManagerTest(unittest.TestCase):
         self.assertEqual(dimensions[1].active, True)
         self.assertEqual(dimensions[1].current_value, 1)
 
-        self.assertEqual('( "column" = \'A\') AND ("row" = \'1\' )', self.layer1.subsetString())
+        self.assertEqual(
+            "( \"column\" = 'A') AND (\"row\" = '1' )", self.layer1.subsetString()
+        )
         self.assertEqual(1, self.layer1.featureCount())
 
-        self.assertEqual('( "row" = \'1\' ) AND ( "column" = \'A\' )', self.layer2.subsetString())
+        self.assertEqual(
+            "( \"row\" = '1' ) AND ( \"column\" = 'A' )", self.layer2.subsetString()
+        )
         self.assertEqual(1, self.layer2.featureCount())
 
-    @patch('dimensions_selector.core.iface.newProjectCreated')
-    @patch('dimensions_selector.core.iface.projectRead')
+    @patch("dimensions_selector.core.iface.newProjectCreated")
+    @patch("dimensions_selector.core.iface.projectRead")
     def test_init(self, projectRead, newProjectCreated):
         self._init_manager()
 
@@ -305,7 +314,7 @@ class DimensionsManagerTest(unittest.TestCase):
         self.manager.set_layer_dimensions(self.layer2, [])
         self.manager.refresh_filters()
 
-        self.layer2.setSubsetString('"row" = \'1\'')
+        self.layer2.setSubsetString("\"row\" = '1'")
         self.assertEqual(4, self.layer2.featureCount())
 
     def test_deactivate(self):
@@ -332,16 +341,16 @@ class DimensionsManagerTest(unittest.TestCase):
         self._init_dimensions()
 
         with tempfile.TemporaryDirectory() as tmpdirname:
-            path = os.path.join(tmpdirname, 'project.qgs')
+            path = os.path.join(tmpdirname, "project.qgs")
             QgsProject.instance().setFileName(path)
             QgsProject.instance().write()
 
             project = QgsProject()
             project.read(path)
-            layer1_saved = project.mapLayersByName('layer1')[0]
-            layer2_saved = project.mapLayersByName('layer2')[0]
-            self.assertEqual('', layer1_saved.subsetString())
-            self.assertEqual('"row" = \'1\'', layer2_saved.subsetString())
+            layer1_saved = project.mapLayersByName("layer1")[0]
+            layer2_saved = project.mapLayersByName("layer2")[0]
+            self.assertEqual("", layer1_saved.subsetString())
+            self.assertEqual("\"row\" = '1'", layer2_saved.subsetString())
 
         self.assertFalse(os.path.exists(path))
         self._assert_initial_dimensions_state()
@@ -352,7 +361,7 @@ class DimensionsManagerTest(unittest.TestCase):
         self.manager.set_active(True)
 
         with tempfile.TemporaryDirectory() as tmpdirname:
-            path = os.path.join(tmpdirname, 'project.qgs')
+            path = os.path.join(tmpdirname, "project.qgs")
             QgsProject.instance().setFileName(path)
             QgsProject.instance().write()
 

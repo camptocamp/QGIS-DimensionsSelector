@@ -6,7 +6,7 @@ from qgis.utils import iface
 from qgis.PyQt.QtCore import QObject, pyqtSignal
 
 
-class Dimension():
+class Dimension:
 
     def __init__(
         self,
@@ -61,7 +61,7 @@ class Dimension():
             return options  # sorted(options, key=lambda o, o[1])
 
 
-class LayerDimension():
+class LayerDimension:
 
     def __init__(self, layer=None, name="", field="", active=True):
         self.layer = layer
@@ -71,7 +71,7 @@ class LayerDimension():
 
     def toDict(self):
         dict_ = self.__dict__.copy()
-        dict_.pop('layer')
+        dict_.pop("layer")
         return dict_
 
     @classmethod
@@ -105,12 +105,12 @@ class DimensionsManager(QObject):
 
     def read(self):
         self._dimensions = []
-        str_value, ok = QgsProject.instance().readEntry(self.scope, 'dimensions')
+        str_value, ok = QgsProject.instance().readEntry(self.scope, "dimensions")
         if ok and str_value:
             for dict_ in json.loads(str_value):
                 self._dimensions.append(Dimension.fromDict(dict_))
 
-        active, ok = QgsProject.instance().readBoolEntry(self.scope, 'active')
+        active, ok = QgsProject.instance().readBoolEntry(self.scope, "active")
         if ok:
             self.set_active(active)
 
@@ -120,10 +120,10 @@ class DimensionsManager(QObject):
 
     def write(self, doc):  # pylint: disable=unused-argument
         self.restore_subset_strings()
-        QgsProject.instance().writeEntry(self.scope, 'active', self.active())
+        QgsProject.instance().writeEntry(self.scope, "active", self.active())
         QgsProject.instance().writeEntry(
             self.scope,
-            'dimensions',
+            "dimensions",
             json.dumps([d.toDict() for d in self._dimensions]),
         )
 
@@ -144,11 +144,15 @@ class DimensionsManager(QObject):
 
     def backup_subset_strings(self):
         for layer in QgsProject.instance().mapLayers().values():
-            layer.setCustomProperty('{}/subsetString_backup'.format(self.scope), layer.subsetString())
+            layer.setCustomProperty(
+                "{}/subsetString_backup".format(self.scope), layer.subsetString()
+            )
 
     def restore_subset_strings(self):
         for layer in QgsProject.instance().mapLayers().values():
-            sql = layer.customProperty('{}/subsetString_backup'.format(self.scope), None)
+            sql = layer.customProperty(
+                "{}/subsetString_backup".format(self.scope), None
+            )
             if sql is not None:
                 layer.setSubsetString(sql)
 
@@ -167,7 +171,9 @@ class DimensionsManager(QObject):
         return dimensions
 
     def set_layer_dimensions(self, layer, dimensions):
-        layer.setCustomProperty(self.scope, json.dumps([d.toDict() for d in dimensions]))
+        layer.setCustomProperty(
+            self.scope, json.dumps([d.toDict() for d in dimensions])
+        )
 
     def refresh_filters(self):
         self.restore_subset_strings()
@@ -183,19 +189,20 @@ class DimensionsManager(QObject):
                 continue
             for dimension in self._dimensions:
                 if dimension.name == layer_dimension.name:
-                    clauses.append('"{}" = \'{}\''.format(
-                        layer_dimension.field,
-                        dimension.current_value))
+                    clauses.append(
+                        "\"{}\" = '{}'".format(
+                            layer_dimension.field, dimension.current_value
+                        )
+                    )
         if not clauses:
             return
         if layer.subsetString():
-            sql = '( {} ) AND ( {} )'.format(
-                layer.subsetString(),
-                ') AND ('.join(clauses)
+            sql = "( {} ) AND ( {} )".format(
+                layer.subsetString(), ") AND (".join(clauses)
             )
         else:
-            sql = '( {} )'.format(
-                ') AND ('.join(clauses)
-            )
+            sql = "( {} )".format(") AND (".join(clauses))
         if not layer.setSubsetString(sql):
-            raise Exception("Layer {} does not support subset string: {}".format(layer.name(), sql))
+            raise Exception(
+                "Layer {} does not support subset string: {}".format(layer.name(), sql)
+            )

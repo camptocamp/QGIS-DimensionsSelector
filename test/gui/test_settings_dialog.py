@@ -8,9 +8,9 @@
 
 """
 
-__author__ = 'info@camptocamp.com'
-__date__ = '2018-07-05'
-__copyright__ = 'Copyright 2018, Camptocamp'
+__author__ = "info@camptocamp.com"
+__date__ = "2018-07-05"
+__copyright__ = "Copyright 2018, Camptocamp"
 
 import unittest
 
@@ -32,10 +32,16 @@ class DimensionsTableModelTest(unittest.TestCase):
 
     def setUp(self):
         super().setUp()
-        self.rows = add_layer('rows.geojson', 'rows')
+        self.rows = add_layer("rows.geojson", "rows")
         self.dimensions = [
             Dimension(name="column", options="A,B,C,D", current_value="A"),
-            Dimension(name="row", table=self.rows, value_field="id", label_field="name", current_value=1),
+            Dimension(
+                name="row",
+                table=self.rows,
+                value_field="id",
+                label_field="name",
+                current_value=1,
+            ),
         ]
 
     def test_items(self):
@@ -88,35 +94,61 @@ class DimensionsTableModelTest(unittest.TestCase):
         for column in range(5):
             self.assertEqual(
                 model.flags(model.index(0, column)),
-                Qt.ItemFlag.ItemIsSelectable |
-                Qt.ItemFlag.ItemIsEditable |
-                Qt.ItemFlag.ItemIsEnabled
+                Qt.ItemFlag.ItemIsSelectable
+                | Qt.ItemFlag.ItemIsEditable
+                | Qt.ItemFlag.ItemIsEnabled,
             )
         self.assertEqual(
             model.flags(model.index(0, 5)),
-            Qt.ItemFlag.ItemIsSelectable |
-            Qt.ItemFlag.ItemIsEditable |
-            Qt.ItemFlag.ItemIsEnabled |
-            Qt.ItemFlag.ItemIsUserCheckable
+            Qt.ItemFlag.ItemIsSelectable
+            | Qt.ItemFlag.ItemIsEditable
+            | Qt.ItemFlag.ItemIsEnabled
+            | Qt.ItemFlag.ItemIsUserCheckable,
         )
 
     def test_data(self):
         model = DimensionsTableModel(list(self.dimensions))
-        self.assertEqual(model.data(model.index(0, 0), Qt.ItemDataRole.DisplayRole), "column")
-        self.assertEqual(model.data(model.index(0, 0), Qt.ItemDataRole.EditRole), "column")
-        self.assertEqual(model.data(model.index(0, 1), Qt.ItemDataRole.DisplayRole), "A,B,C,D")
-        self.assertEqual(model.data(model.index(0, 1), Qt.ItemDataRole.EditRole), "A,B,C,D")
-        self.assertEqual(model.data(model.index(0, 5), Qt.ItemDataRole.CheckStateRole), Qt.CheckState.Checked)
+        self.assertEqual(
+            model.data(model.index(0, 0), Qt.ItemDataRole.DisplayRole), "column"
+        )
+        self.assertEqual(
+            model.data(model.index(0, 0), Qt.ItemDataRole.EditRole), "column"
+        )
+        self.assertEqual(
+            model.data(model.index(0, 1), Qt.ItemDataRole.DisplayRole), "A,B,C,D"
+        )
+        self.assertEqual(
+            model.data(model.index(0, 1), Qt.ItemDataRole.EditRole), "A,B,C,D"
+        )
+        self.assertEqual(
+            model.data(model.index(0, 5), Qt.ItemDataRole.CheckStateRole),
+            Qt.CheckState.Checked,
+        )
 
-        self.assertEqual(model.data(model.index(1, 0), Qt.ItemDataRole.DisplayRole), "row")
+        self.assertEqual(
+            model.data(model.index(1, 0), Qt.ItemDataRole.DisplayRole), "row"
+        )
         self.assertEqual(model.data(model.index(1, 0), Qt.ItemDataRole.EditRole), "row")
-        self.assertEqual(model.data(model.index(1, 2), Qt.ItemDataRole.DisplayRole), "rows")
-        self.assertEqual(model.data(model.index(1, 2), Qt.ItemDataRole.EditRole), self.rows)
-        self.assertEqual(model.data(model.index(1, 3), Qt.ItemDataRole.DisplayRole), "id")
+        self.assertEqual(
+            model.data(model.index(1, 2), Qt.ItemDataRole.DisplayRole), "rows"
+        )
+        self.assertEqual(
+            model.data(model.index(1, 2), Qt.ItemDataRole.EditRole), self.rows
+        )
+        self.assertEqual(
+            model.data(model.index(1, 3), Qt.ItemDataRole.DisplayRole), "id"
+        )
         self.assertEqual(model.data(model.index(1, 3), Qt.ItemDataRole.EditRole), "id")
-        self.assertEqual(model.data(model.index(1, 4), Qt.ItemDataRole.DisplayRole), "name")
-        self.assertEqual(model.data(model.index(1, 4), Qt.ItemDataRole.EditRole), "name")
-        self.assertEqual(model.data(model.index(1, 5), Qt.ItemDataRole.CheckStateRole), Qt.CheckState.Checked)
+        self.assertEqual(
+            model.data(model.index(1, 4), Qt.ItemDataRole.DisplayRole), "name"
+        )
+        self.assertEqual(
+            model.data(model.index(1, 4), Qt.ItemDataRole.EditRole), "name"
+        )
+        self.assertEqual(
+            model.data(model.index(1, 5), Qt.ItemDataRole.CheckStateRole),
+            Qt.CheckState.Checked,
+        )
 
     def test_setData(self):
         dimensions = list(self.dimensions)
@@ -129,14 +161,16 @@ class DimensionsTableModelTest(unittest.TestCase):
         model.setData(model.index(0, 1), "A,B,C,D,E", Qt.ItemDataRole.EditRole)
         self.assertEqual(dimensions[0].options, "A,B,C,D,E")
 
-        model.setData(model.index(0, 5), Qt.CheckState.Unchecked, Qt.ItemDataRole.CheckStateRole)
+        model.setData(
+            model.index(0, 5), Qt.CheckState.Unchecked, Qt.ItemDataRole.CheckStateRole
+        )
         self.assertEqual(dimensions[0].active, False)
 
         # Table based dimension
         model.setData(model.index(1, 0), "new_name1", Qt.ItemDataRole.EditRole)
         self.assertEqual(dimensions[1].name, "new_name1")
 
-        new_rows = add_layer('rows.geojson', 'new_rows')
+        new_rows = add_layer("rows.geojson", "new_rows")
         model.setData(model.index(1, 2), new_rows, Qt.ItemDataRole.EditRole)
         self.assertEqual(dimensions[1].table, new_rows)
 
@@ -146,7 +180,9 @@ class DimensionsTableModelTest(unittest.TestCase):
         model.setData(model.index(1, 4), "id", Qt.ItemDataRole.EditRole)
         self.assertEqual(dimensions[1].label_field, "id")
 
-        model.setData(model.index(1, 5), Qt.CheckState.Unchecked, Qt.ItemDataRole.CheckStateRole)
+        model.setData(
+            model.index(1, 5), Qt.CheckState.Unchecked, Qt.ItemDataRole.CheckStateRole
+        )
         self.assertEqual(dimensions[1].active, False)
 
 
@@ -155,11 +191,13 @@ class LayerDimensionsTableModelTest(unittest.TestCase):
     def setUp(self):
         super().setUp()
 
-        self.layer1 = add_layer('layer.geojson', 'layer1')
-        self.layer2 = add_layer('layer.geojson', 'layer2')
+        self.layer1 = add_layer("layer.geojson", "layer1")
+        self.layer2 = add_layer("layer.geojson", "layer2")
 
         self.layer_dimensions = [
-            LayerDimension(layer=self.layer1, name="column", field="column", active=True),
+            LayerDimension(
+                layer=self.layer1, name="column", field="column", active=True
+            ),
             LayerDimension(layer=self.layer2, name="row", field="row", active=True),
         ]
 
@@ -209,35 +247,61 @@ class LayerDimensionsTableModelTest(unittest.TestCase):
         for column in range(3):
             self.assertEqual(
                 model.flags(model.index(0, column)),
-                Qt.ItemFlag.ItemIsSelectable |
-                Qt.ItemFlag.ItemIsEditable |
-                Qt.ItemFlag.ItemIsEnabled
+                Qt.ItemFlag.ItemIsSelectable
+                | Qt.ItemFlag.ItemIsEditable
+                | Qt.ItemFlag.ItemIsEnabled,
             )
         self.assertEqual(
             model.flags(model.index(0, 3)),
-            Qt.ItemFlag.ItemIsSelectable |
-            Qt.ItemFlag.ItemIsEditable |
-            Qt.ItemFlag.ItemIsEnabled |
-            Qt.ItemFlag.ItemIsUserCheckable
+            Qt.ItemFlag.ItemIsSelectable
+            | Qt.ItemFlag.ItemIsEditable
+            | Qt.ItemFlag.ItemIsEnabled
+            | Qt.ItemFlag.ItemIsUserCheckable,
         )
 
     def test_data(self):
         model = LayerDimensionsTableModel(list(self.layer_dimensions))
-        self.assertEqual(model.data(model.index(0, 0), Qt.ItemDataRole.DisplayRole), "layer1")
-        self.assertEqual(model.data(model.index(0, 0), Qt.ItemDataRole.EditRole), self.layer1)
-        self.assertEqual(model.data(model.index(0, 1), Qt.ItemDataRole.DisplayRole), "column")
-        self.assertEqual(model.data(model.index(0, 1), Qt.ItemDataRole.EditRole), "column")
-        self.assertEqual(model.data(model.index(0, 2), Qt.ItemDataRole.DisplayRole), "column")
-        self.assertEqual(model.data(model.index(0, 2), Qt.ItemDataRole.EditRole), "column")
-        self.assertEqual(model.data(model.index(0, 3), Qt.ItemDataRole.CheckStateRole), Qt.CheckState.Checked)
+        self.assertEqual(
+            model.data(model.index(0, 0), Qt.ItemDataRole.DisplayRole), "layer1"
+        )
+        self.assertEqual(
+            model.data(model.index(0, 0), Qt.ItemDataRole.EditRole), self.layer1
+        )
+        self.assertEqual(
+            model.data(model.index(0, 1), Qt.ItemDataRole.DisplayRole), "column"
+        )
+        self.assertEqual(
+            model.data(model.index(0, 1), Qt.ItemDataRole.EditRole), "column"
+        )
+        self.assertEqual(
+            model.data(model.index(0, 2), Qt.ItemDataRole.DisplayRole), "column"
+        )
+        self.assertEqual(
+            model.data(model.index(0, 2), Qt.ItemDataRole.EditRole), "column"
+        )
+        self.assertEqual(
+            model.data(model.index(0, 3), Qt.ItemDataRole.CheckStateRole),
+            Qt.CheckState.Checked,
+        )
 
-        self.assertEqual(model.data(model.index(1, 0), Qt.ItemDataRole.DisplayRole), "layer2")
-        self.assertEqual(model.data(model.index(1, 0), Qt.ItemDataRole.EditRole), self.layer2)
-        self.assertEqual(model.data(model.index(1, 1), Qt.ItemDataRole.DisplayRole), "row")
+        self.assertEqual(
+            model.data(model.index(1, 0), Qt.ItemDataRole.DisplayRole), "layer2"
+        )
+        self.assertEqual(
+            model.data(model.index(1, 0), Qt.ItemDataRole.EditRole), self.layer2
+        )
+        self.assertEqual(
+            model.data(model.index(1, 1), Qt.ItemDataRole.DisplayRole), "row"
+        )
         self.assertEqual(model.data(model.index(1, 1), Qt.ItemDataRole.EditRole), "row")
-        self.assertEqual(model.data(model.index(1, 2), Qt.ItemDataRole.DisplayRole), "row")
+        self.assertEqual(
+            model.data(model.index(1, 2), Qt.ItemDataRole.DisplayRole), "row"
+        )
         self.assertEqual(model.data(model.index(1, 2), Qt.ItemDataRole.EditRole), "row")
-        self.assertEqual(model.data(model.index(1, 3), Qt.ItemDataRole.CheckStateRole), Qt.CheckState.Checked)
+        self.assertEqual(
+            model.data(model.index(1, 3), Qt.ItemDataRole.CheckStateRole),
+            Qt.CheckState.Checked,
+        )
 
     def test_setData(self):
         dimensions = list(self.layer_dimensions)
@@ -252,7 +316,9 @@ class LayerDimensionsTableModelTest(unittest.TestCase):
         model.setData(model.index(0, 2), "new_field", Qt.ItemDataRole.EditRole)
         self.assertEqual(dimensions[0].field, "new_field")
 
-        model.setData(model.index(0, 3), Qt.CheckState.Unchecked, Qt.ItemDataRole.CheckStateRole)
+        model.setData(
+            model.index(0, 3), Qt.CheckState.Unchecked, Qt.ItemDataRole.CheckStateRole
+        )
         self.assertEqual(dimensions[0].active, False)
 
 
@@ -261,11 +327,13 @@ class LayerDelegateTest(unittest.TestCase):
     def setUp(self):
         super().setUp()
 
-        self.layer1 = add_layer('layer.geojson', 'layer1')
-        self.layer2 = add_layer('layer.geojson', 'layer2')
+        self.layer1 = add_layer("layer.geojson", "layer1")
+        self.layer2 = add_layer("layer.geojson", "layer2")
 
         self.layer_dimensions = [
-            LayerDimension(layer=self.layer1, name="column", field="column", active=True),
+            LayerDimension(
+                layer=self.layer1, name="column", field="column", active=True
+            ),
             LayerDimension(layer=self.layer2, name="row", field="row", active=True),
         ]
 
@@ -334,11 +402,13 @@ class FieldDelegateTest(unittest.TestCase):
     def setUp(self):
         super().setUp()
 
-        self.layer1 = add_layer('layer.geojson', 'layer1')
-        self.layer2 = add_layer('layer.geojson', 'layer2')
+        self.layer1 = add_layer("layer.geojson", "layer1")
+        self.layer2 = add_layer("layer.geojson", "layer2")
 
         self.layer_dimensions = [
-            LayerDimension(layer=self.layer1, name="column", field="column", active=True),
+            LayerDimension(
+                layer=self.layer1, name="column", field="column", active=True
+            ),
             LayerDimension(layer=self.layer2, name="row", field="row", active=True),
         ]
 
@@ -395,16 +465,16 @@ class SettingsDialogTest(unittest.TestCase):
     """Test dialog works."""
 
     def setUp(self):
-        self.rows = add_layer('rows.geojson', 'rows')
-        self.layer1 = add_layer('layer.geojson', 'layer1')
-        self.layer2 = add_layer('layer.geojson', 'layer2')
+        self.rows = add_layer("rows.geojson", "rows")
+        self.layer1 = add_layer("layer.geojson", "layer1")
+        self.layer2 = add_layer("layer.geojson", "layer2")
 
-        self.manager = DimensionsManager('dimensions_selector')
+        self.manager = DimensionsManager("dimensions_selector")
 
         self.dimensions = [
-            Dimension(name='column', options='A,B,C,D', active=True, current_value='A'),
+            Dimension(name="column", options="A,B,C,D", active=True, current_value="A"),
             Dimension(
-                name='row',
+                name="row",
                 table=self.rows,
                 value_field="id",
                 label_field="name",
@@ -415,8 +485,8 @@ class SettingsDialogTest(unittest.TestCase):
         self.manager.set_dimensions(list(self.dimensions))
 
         layer_dimensions = [
-            LayerDimension(self.layer1, 'column', 'column', True),
-            LayerDimension(self.layer2, 'row', 'row', True),
+            LayerDimension(self.layer1, "column", "column", True),
+            LayerDimension(self.layer2, "row", "row", True),
         ]
         self.manager.set_layer_dimensions(self.layer1, [layer_dimensions[0]])
         self.manager.set_layer_dimensions(self.layer2, [layer_dimensions[1]])
@@ -473,16 +543,23 @@ class SettingsDialogTest(unittest.TestCase):
 
         dialog = self.dialog()
         dialog.dimensionsView.clearSelection()
-        self.assertEqual(dialog.layerDimensionsView.model().filterRegularExpression().pattern(), "")
+        self.assertEqual(
+            dialog.layerDimensionsView.model().filterRegularExpression().pattern(), ""
+        )
         self.assertEqual(dialog.layerDimensionsView.model().rowCount(), 2)
 
         dialog.dimensionsView.selectRow(0)
         self.assertEqual(
-            dialog.layerDimensionsView.model().filterRegularExpression().pattern(), "^(?:column)$")
+            dialog.layerDimensionsView.model().filterRegularExpression().pattern(),
+            "^(?:column)$",
+        )
         self.assertEqual(dialog.layerDimensionsView.model().rowCount(), 1)
 
         dialog.dimensionsView.selectRow(1)
-        self.assertEqual(dialog.layerDimensionsView.model().filterRegularExpression().pattern(), "^(?:row)$")
+        self.assertEqual(
+            dialog.layerDimensionsView.model().filterRegularExpression().pattern(),
+            "^(?:row)$",
+        )
         self.assertEqual(dialog.layerDimensionsView.model().rowCount(), 1)
 
         dialog.dimensionsView.selectionModel().select(
@@ -493,7 +570,9 @@ class SettingsDialogTest(unittest.TestCase):
             QItemSelectionModel.SelectionFlag.ClearAndSelect,
         )
         self.assertEqual(
-            dialog.layerDimensionsView.model().filterRegularExpression().pattern(), "^(?:column|row)$")
+            dialog.layerDimensionsView.model().filterRegularExpression().pattern(),
+            "^(?:column|row)$",
+        )
         self.assertEqual(dialog.layerDimensionsView.model().rowCount(), 2)
 
     def test_on_addDimensionButton_clicked(self):
@@ -530,7 +609,9 @@ class SettingsDialogTest(unittest.TestCase):
         dialog.dimensionsView.selectionModel().select(
             QItemSelection(
                 dialog.dimensionsView.model().index(0, 0),
-                dialog.dimensionsView.model().index(1, dialog._dimensions_model.columnCount() - 1),
+                dialog.dimensionsView.model().index(
+                    1, dialog._dimensions_model.columnCount() - 1
+                ),
             ),
             QItemSelectionModel.SelectionFlag.ClearAndSelect,
         )

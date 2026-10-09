@@ -8,10 +8,9 @@
 
 """
 
-__author__ = 'ismailsunni@yahoo.co.id'
-__date__ = '12/10/2011'
-__copyright__ = ('Copyright 2012, Australia Indonesia Facility for '
-                 'Disaster Reduction')
+__author__ = "ismailsunni@yahoo.co.id"
+__date__ = "12/10/2011"
+__copyright__ = "Copyright 2012, Australia Indonesia Facility for " "Disaster Reduction"
 import os
 import unittest
 
@@ -23,25 +22,29 @@ class SafeTranslationsTest(unittest.TestCase):
 
     def setUp(self):
         """Runs before each test."""
-        if 'LANG' in iter(os.environ.keys()):
-            os.environ.__delitem__('LANG')
+        if "LANG" in iter(os.environ.keys()):
+            os.environ.__delitem__("LANG")
 
     def tearDown(self):
         """Runs after each test."""
-        if 'LANG' in iter(os.environ.keys()):
-            os.environ.__delitem__('LANG')
+        if "LANG" in iter(os.environ.keys()):
+            os.environ.__delitem__("LANG")
 
     def test_qgis_translations(self):
         """Test that translations work."""
-        file_path = os.path.join(os.path.dirname(__file__), "..", "dimensions_selector", "i18n", "fr.qm")
+        file_path = os.path.join(
+            os.path.dirname(__file__), "..", "dimensions_selector", "i18n", "fr.qm"
+        )
         self.assertTrue(os.path.isfile(file_path))
 
         translator = QTranslator()
         translator.load(file_path)
         QCoreApplication.installTranslator(translator)
 
-        expected_message = 'Réglages'
-        real_message = QCoreApplication.translate("DimensionsSelectorPlugin", 'Settings')
+        expected_message = "Réglages"
+        real_message = QCoreApplication.translate(
+            "DimensionsSelectorPlugin", "Settings"
+        )
         self.assertEqual(real_message, expected_message)
 
 
