@@ -3,7 +3,7 @@
 
 # You can set these variables from the command line.
 SPHINXOPTS    =
-SPHINXBUILD   = ../.build/venv/bin/sphinx-build
+SPHINXBUILD   = sphinx-build
 PAPER         =
 SOURCEDIR     = source
 BUILDDIR      = build
@@ -42,10 +42,9 @@ clean:
 .PHONY: gettext
 gettext:
 	$(SPHINXBUILD) -b gettext $(I18NSPHINXOPTS) $(BUILDDIR)/locale
-	../.build/venv/bin/sphinx-intl update -l fr
+	sphinx-intl update -l fr
 
 html:
-	msgfmt $(SOURCEDIR)/locale/fr/LC_MESSAGES/index.po -o $(SOURCEDIR)/locale/fr/LC_MESSAGES/index.mo
 	$(SPHINXBUILD) -b html -D language='en' $(ALLSPHINXOPTS) $(BUILDDIR)/html/en
 	$(SPHINXBUILD) -b html -D language='fr' $(ALLSPHINXOPTS) $(BUILDDIR)/html/fr
 	@echo
