@@ -26,8 +26,8 @@ from pkg_resources import resource_filename
 
 from qgis.core import QgsApplication
 
-from PyQt5.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
-from PyQt5.QtWidgets import QAction
+from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
+from qgis.PyQt.QtWidgets import QAction
 
 from .core import DimensionsManager
 
@@ -147,6 +147,6 @@ class DimensionsSelectorPlugin():
 
     def showSettings(self):
         dlg = SettingsDialog(self.manager)
-        result = dlg.exec_()
+        result = dlg.exec()
         if result:
             self.resetSelectors()
