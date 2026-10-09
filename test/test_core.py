@@ -11,7 +11,6 @@ from qgis.utils import iface
 
 from dimensions_selector.core import Dimension, LayerDimension, DimensionsManager
 
-from test import data_folder
 from test.utils import add_layer, init_project
 
 
@@ -352,16 +351,15 @@ class DimensionsManagerTest(unittest.TestCase):
         self._init_dimensions()
         self.manager.set_active(True)
 
-        # Save as the example project
-        path = os.path.join(data_folder, 'project.qgs')
-        QgsProject.instance().setFileName(path)
-        QgsProject.instance().write()
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            path = os.path.join(tmpdirname, 'project.qgs')
+            QgsProject.instance().setFileName(path)
+            QgsProject.instance().write()
 
-        # Clear project and manager
-        QgsProject.instance().clear()
+            QgsProject.instance().clear()
 
-        QgsProject.instance().read(path)
-        self.manager.read()
+            QgsProject.instance().read(path)
+            self.manager.read()
 
         self._assert_initial_dimensions_state()
 
