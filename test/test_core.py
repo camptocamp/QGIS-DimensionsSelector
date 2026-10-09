@@ -195,7 +195,7 @@ class DimensionsManagerTest(unittest.TestCase):
         """Runs after each test."""
         if self.manager is not None:
             self.manager.deleteLater()
-        QgsApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+        QgsApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
         QgsProject.instance().clear()
 
     def _assert_setup_state(self, project=None):

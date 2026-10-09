@@ -14,7 +14,6 @@ __copyright__ = ('Copyright 2012, Australia Indonesia Facility for '
                  'Disaster Reduction')
 import os
 import unittest
-from pkg_resources import resource_filename
 
 from qgis.PyQt.QtCore import QCoreApplication, QTranslator
 
@@ -34,7 +33,7 @@ class SafeTranslationsTest(unittest.TestCase):
 
     def test_qgis_translations(self):
         """Test that translations work."""
-        file_path = resource_filename("dimensions_selector", "i18n/fr.qm")
+        file_path = os.path.join(os.path.dirname(__file__), "..", "dimensions_selector", "i18n", "fr.qm")
         self.assertTrue(os.path.isfile(file_path))
 
         translator = QTranslator()
