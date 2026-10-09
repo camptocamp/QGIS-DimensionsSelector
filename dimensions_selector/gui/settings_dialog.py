@@ -24,13 +24,14 @@
 
 import os
 import itertools
+import re
 
-from qgis.core import QgsProject, QgsMapLayerProxyModel
+from qgis.core import Qgis, QgsProject
 from qgis.gui import QgsMapLayerComboBox, QgsFieldComboBox
 
 from qgis.PyQt import uic
 from qgis.PyQt import QtWidgets
-from qgis.PyQt.QtCore import pyqtSlot, Qt, QSortFilterProxyModel, QAbstractTableModel, QModelIndex, QVariant
+from qgis.PyQt.QtCore import pyqtSlot, Qt, QSortFilterProxyModel, QAbstractTableModel, QModelIndex, QMetaType
 from qgis.PyQt.QtWidgets import QHeaderView, QStyledItemDelegate, QAbstractItemView
 
 from dimensions_selector.core import Dimension, LayerDimension
@@ -99,15 +100,15 @@ class BaseTableModel(QAbstractTableModel):
 
     def flags(self, index):
         column_def = self._columns[index.column()]
-        if column_def['type'] == QVariant.Bool:
-            return Qt.ItemFlags(Qt.ItemFlag.ItemIsSelectable |
-                                Qt.ItemFlag.ItemIsEnabled |
-                                Qt.ItemFlag.ItemIsEditable |
-                                Qt.ItemFlag.ItemIsUserCheckable)
+        if column_def['type'] == QMetaType.Type.Bool:
+            return (Qt.ItemFlag.ItemIsSelectable |
+                    Qt.ItemFlag.ItemIsEnabled |
+                    Qt.ItemFlag.ItemIsEditable |
+                    Qt.ItemFlag.ItemIsUserCheckable)
         else:
-            return Qt.ItemFlags(Qt.ItemFlag.ItemIsSelectable |
-                                Qt.ItemFlag.ItemIsEditable |
-                                Qt.ItemFlag.ItemIsEnabled)
+            return (Qt.ItemFlag.ItemIsSelectable |
+                    Qt.ItemFlag.ItemIsEditable |
+                    Qt.ItemFlag.ItemIsEnabled)
 
 
 class DimensionsTableModel(BaseTableModel):
@@ -115,27 +116,27 @@ class DimensionsTableModel(BaseTableModel):
     def _configure(self):
         self._columns = [{
             'name': 'name',
-            'type': QVariant.String,
+            'type': QMetaType.Type.QString,
             'header': self.tr("Name")
         }, {
             'name': 'options',
-            'type': QVariant.String,
+            'type': QMetaType.Type.QString,
             'header': self.tr("Choices")
         }, {
             'name': 'table',
-            'type': QVariant.String,
+            'type': QMetaType.Type.QString,
             'header': self.tr("Table")
         }, {
             'name': 'value_field',
-            'type': QVariant.String,
+            'type': QMetaType.Type.QString,
             'header': self.tr("Value field")
         }, {
             'name': 'label_field',
-            'type': QVariant.String,
+            'type': QMetaType.Type.QString,
             'header': self.tr("Label field")
         }, {
             'name': 'active',
-            'type': QVariant.Bool,
+            'type': QMetaType.Type.Bool,
             'header': self.tr("Active")
         }]
 
@@ -143,7 +144,7 @@ class DimensionsTableModel(BaseTableModel):
         if role == Qt.ItemDataRole.DisplayRole:
             item = self._items[index.row()]
             column_def = self._columns[index.column()]
-            if column_def['type'] == QVariant.Bool:
+            if column_def['type'] == QMetaType.Type.Bool:
                 return ''
             if column_def['name'] == 'table':
                 return item.table.name() if item.table is not None else ''
@@ -155,7 +156,7 @@ class DimensionsTableModel(BaseTableModel):
         if role == Qt.ItemDataRole.CheckStateRole:
             item = self._items[index.row()]
             column_def = self._columns[index.column()]
-            if column_def['type'] == QVariant.Bool:
+            if column_def['type'] == QMetaType.Type.Bool:
                 return Qt.CheckState.Checked if item.active else Qt.CheckState.Unchecked
 
     def setData(self, index, value, role=Qt.ItemDataRole.EditRole):
@@ -176,20 +177,20 @@ class LayerDimensionsTableModel(BaseTableModel):
     def _configure(self):
         self._columns = [{
             'name': 'layer',
-            'type': QVariant.String,
+            'type': QMetaType.Type.QString,
             'header': self.tr("Layer"),
             'persistentEditor': True
         }, {
             'name': 'name',
-            'type': QVariant.String,
+            'type': QMetaType.Type.QString,
             'header': self.tr("Name")
         }, {
             'name': 'field',
-            'type': QVariant.String,
+            'type': QMetaType.Type.QString,
             'header': self.tr("Field")
         }, {
             'name': 'active',
-            'type': QVariant.Bool,
+            'type': QMetaType.Type.Bool,
             'header': self.tr("Active"),
             'persistentEditor': True
         }]
@@ -203,7 +204,7 @@ class LayerDimensionsTableModel(BaseTableModel):
         if role == Qt.ItemDataRole.DisplayRole:
             item = self._items[index.row()]
             column_def = self._columns[index.column()]
-            if column_def['type'] == QVariant.Bool:
+            if column_def['type'] == QMetaType.Type.Bool:
                 return ''
             if column_def['name'] == 'layer':
                 return item.layer.name() if item.layer is not None else ''
@@ -217,7 +218,7 @@ class LayerDimensionsTableModel(BaseTableModel):
         if role == Qt.ItemDataRole.CheckStateRole:
             item = self._items[index.row()]
             column_def = self._columns[index.column()]
-            if column_def['type'] == QVariant.Bool:
+            if column_def['type'] == QMetaType.Type.Bool:
                 return Qt.CheckState.Checked if item.active else Qt.CheckState.Unchecked
 
     def setData(self, index, value, role=Qt.ItemDataRole.EditRole):
@@ -237,7 +238,7 @@ class LayerDelegate(QStyledItemDelegate):
 
     def createEditor(self, parent, option, index):
         editor = QgsMapLayerComboBox(parent)
-        editor.setFilters(QgsMapLayerProxyModel.Filter.VectorLayer)
+        editor.setFilters(Qgis.LayerFilter.VectorLayer)
         editor.layerChanged.connect(self.on_layerChanged)
         return editor
 
@@ -359,10 +360,11 @@ class SettingsDialog(QtWidgets.QDialog, FORM_CLASS):
 
     def on_dimensionsView_selectionChanged(self, selected, deselected):
         if self.dimensionsView.selectionModel().hasSelection():
-            pattern = '^{}$'.format('|'.join(self.selected_dimensions_names()))
+            pattern = '^(?:{})$'.format('|'.join(
+                re.escape(name) for name in self.selected_dimensions_names()))
         else:
             pattern = ''
-        self.layerDimensionsView.model().setFilterRegExp(pattern)
+        self.layerDimensionsView.model().setFilterRegularExpression(pattern)
         self.layerDimensionsView.horizontalHeader().resizeSections(QHeaderView.ResizeMode.ResizeToContents)
 
     @pyqtSlot(name='on_addDimensionButton_clicked')

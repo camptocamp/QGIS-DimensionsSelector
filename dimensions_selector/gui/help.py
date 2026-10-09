@@ -1,4 +1,4 @@
-from pkg_resources import resource_filename
+import os
 
 from qgis.PyQt.QtCore import QSettings, QUrl
 from qgis.PyQt.QtGui import QDesktopServices
@@ -9,6 +9,6 @@ def openHelp():
     if locale not in ("fr"):
         locale = "en"
 
-    index_path = resource_filename("dimensions_selector", "help/{}/index.html".format(locale))
+    index_path = os.path.join(os.path.dirname(__file__), "..", "help", locale, "index.html")
 
     QDesktopServices.openUrl(QUrl.fromLocalFile(index_path))

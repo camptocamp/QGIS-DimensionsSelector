@@ -37,9 +37,8 @@ EXTRAS = metadata.txt icon.png
 EXTRA_DIRS =
 
 PYTHON_FILES = $(shell find $(PLUGINNAME) -name *.py)
-COMPILED_RESOURCE_FILES = $(PLUGINNAME)/resources.py
 
-PEP8EXCLUDE=pydev,resources.py,conf.py,third_party,ui
+PEP8EXCLUDE=pydev,conf.py,third_party,ui
 
 
 #################################################
@@ -50,16 +49,11 @@ HELP = help/build/html
 
 PLUGIN_UPLOAD = ./plugin_upload.py
 
-RESOURCE_SRC=$(shell grep '^ *<file' resources.qrc | sed 's@</file>@@g;s/.*>//g' | tr '\n' ' ')
-
 QGISDIR=.local/share/QGIS/QGIS3/profiles/default
 
 default: compile
 
-compile: $(COMPILED_RESOURCE_FILES) doc
-
-%.py : %.qrc $(RESOURCES_SRC)
-	pyrcc5 -o $*.py  $<
+compile: doc
 
 %.qm : %.ts
 	$(LRELEASE) $<
@@ -140,9 +134,8 @@ transclean:
 clean: transclean
 	@echo
 	@echo "------------------------------------"
-	@echo "Removing uic and rcc generated files"
+	@echo "Removing generated documentation"
 	@echo "------------------------------------"
-	rm $(COMPILED_RESOURCE_FILES)
 	rm -rf $(PLUGINNAME)/help
 
 cleanall: clean

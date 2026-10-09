@@ -22,7 +22,6 @@
  ***************************************************************************/
 """
 import os.path
-from pkg_resources import resource_filename
 
 from qgis.core import QgsApplication
 
@@ -30,10 +29,6 @@ from qgis.PyQt.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
 from qgis.PyQt.QtWidgets import QAction
 
 from .core import DimensionsManager
-
-# Initialize Qt resources from file resources.py
-from .resources import *  # noqa: F401 F403
-# Import the code for the dialog
 from .gui.actions import DimensionSelectorAction
 from .gui.settings_dialog import SettingsDialog
 
@@ -55,7 +50,7 @@ class DimensionsSelectorPlugin():
         self.plugin_dir = os.path.dirname(__file__)
         # initialize locale
         locale = QSettings().value('locale/userLocale')[0:2]
-        locale_path = resource_filename("dimensions_selector", "i18n/{}.qm".format(locale))
+        locale_path = os.path.join(self.plugin_dir, 'i18n', '{}.qm'.format(locale))
 
         if os.path.exists(locale_path):
             self.translator = QTranslator()
