@@ -11,7 +11,10 @@ services:
       - ${PWD}/dimensions_selector:/app/dimensions_selector
       - /tmp/.X11-unix:/tmp/.X11-unix
       - qgis-settings:/home/user/.local/share/QGIS
-      - ./docker/xauth:/tmp/xauth:ro
+      - type: bind
+        source: ${XAUTHORITY:-${HOME}/.Xauthority}
+        target: /tmp/.Xauthority
+        read_only: true
     devices:
       - /dev/dri:/dev/dri
     environment:
@@ -20,7 +23,7 @@ services:
       - QGIS_LOG_FILE=/dev/null
       - QGIS_PLUGINPATH=/app
       - DISPLAY=${DISPLAY}
-      - XAUTHORITY=/tmp/xauth
+      - XAUTHORITY=/tmp/.Xauthority
     entrypoint: ""
     command: qgis
 

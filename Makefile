@@ -50,8 +50,6 @@ clean: ## Delete generated files
 
 .PHONY: qgis
 qgis: ## Run QGIS desktop
-	touch ./docker/xauth
-	xauth nlist ${DISPLAY} | sed -e 's/^..../ffff/' | xauth -f ./docker/xauth nmerge -
 	docker compose run --rm --user `id -u`:`id -g` qgis
 
 .PHONY: check
