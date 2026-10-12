@@ -317,6 +317,16 @@ class DimensionsManagerTest(unittest.TestCase):
         self.layer2.setSubsetString("\"row\" = '1'")
         self.assertEqual(4, self.layer2.featureCount())
 
+    def test_ignore_raster_layer(self):
+        self._init_dimensions()
+        self.manager.set_active(False)
+
+        osm = QgsProject.instance().mapLayersByName("osm")[0]
+        self.assertIsNone(
+            osm.customProperty("dimensions_selector/subsetString_backup", None)
+        )
+        self.assertEqual("", osm.subsetString())
+
     def test_deactivate(self):
         self._init_dimensions()
 

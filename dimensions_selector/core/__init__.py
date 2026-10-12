@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import json
-from qgis.core import QgsProject
+from qgis.core import Qgis, QgsProject
 from qgis.utils import iface
 from qgis.PyQt.QtCore import QObject, pyqtSignal
 
@@ -142,14 +142,22 @@ class DimensionsManager(QObject):
         self._active = value
         self.refresh_filters()
 
+    @staticmethod
+    def _vector_layers():
+        return [
+            layer
+            for layer in QgsProject.instance().mapLayers().values()
+            if layer.type() == Qgis.LayerType.Vector
+        ]
+
     def backup_subset_strings(self):
-        for layer in QgsProject.instance().mapLayers().values():
+        for layer in self._vector_layers():
             layer.setCustomProperty(
                 "{}/subsetString_backup".format(self.scope), layer.subsetString()
             )
 
     def restore_subset_strings(self):
-        for layer in QgsProject.instance().mapLayers().values():
+        for layer in self._vector_layers():
             sql = layer.customProperty(
                 "{}/subsetString_backup".format(self.scope), None
             )
@@ -179,7 +187,7 @@ class DimensionsManager(QObject):
         self.restore_subset_strings()
         if not self._active:
             return
-        for layer in QgsProject.instance().mapLayers().values():
+        for layer in self._vector_layers():
             self._apply_layer_filter(layer)
 
     def _apply_layer_filter(self, layer):
