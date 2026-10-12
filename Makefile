@@ -22,9 +22,11 @@ PLUGINNAME = dimensions_selector
 
 # QGIS version of the docker image, can be overriden by calling
 # QGIS_VERSION=4.2 make <target> or in local.mk
-QGIS_VERSION ?= 3.44
+# QGIS_VERSION ?= 3.44
+QGIS_VERSION ?= 4.2
 
-QGISDIR ?= .local/share/QGIS/QGIS3/profiles/default
+# QGISDIR ?= .local/share/QGIS/QGIS3/profiles/default
+QGISDIR ?= .local/share/QGIS/QGIS4/profiles/default
 
 export DOCKER_BUILDKIT=1
 
