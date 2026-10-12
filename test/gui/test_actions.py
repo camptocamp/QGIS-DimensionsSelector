@@ -1,10 +1,13 @@
 import unittest
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QComboBox
+from qgis.PyQt.QtCore import Qt
+from qgis.PyQt.QtWidgets import QComboBox
 
 from dimensions_selector.core import Dimension
-from dimensions_selector.gui.actions import DimensionValuesModel, DimensionSelectorAction
+from dimensions_selector.gui.actions import (
+    DimensionValuesModel,
+    DimensionSelectorAction,
+)
 
 from test.utils import add_layer
 
@@ -30,14 +33,16 @@ class DimensionValuesModelWithOptionsTest(unittest.TestCase):
 
     def test_data(self):
         model = self.model()
-        self.assertEqual(model.data(model.index(0, 0), Qt.DisplayRole), "A")
-        self.assertEqual(model.data(model.index(0, 0), Qt.EditRole), "A")
+        self.assertEqual(
+            model.data(model.index(0, 0), Qt.ItemDataRole.DisplayRole), "A"
+        )
+        self.assertEqual(model.data(model.index(0, 0), Qt.ItemDataRole.EditRole), "A")
 
 
 class DimensionValuesModelWithTableTest(unittest.TestCase):
 
     def model(self):
-        rows = add_layer('rows.geojson', 'rows')
+        rows = add_layer("rows.geojson", "rows")
 
         return DimensionValuesModel(
             Dimension(
@@ -59,8 +64,10 @@ class DimensionValuesModelWithTableTest(unittest.TestCase):
 
     def test_data(self):
         model = self.model()
-        self.assertEqual(model.data(model.index(0, 0), Qt.DisplayRole), "first")
-        self.assertEqual(model.data(model.index(0, 0), Qt.EditRole), 1)
+        self.assertEqual(
+            model.data(model.index(0, 0), Qt.ItemDataRole.DisplayRole), "first"
+        )
+        self.assertEqual(model.data(model.index(0, 0), Qt.ItemDataRole.EditRole), 1)
 
 
 class DimensionSelectorActionWithOptionsTest(unittest.TestCase):
@@ -72,9 +79,7 @@ class DimensionSelectorActionWithOptionsTest(unittest.TestCase):
             current_value="A",
         )
 
-        return DimensionSelectorAction(
-            self._dimension
-        )
+        return DimensionSelectorAction(self._dimension)
 
     def test_createWidget(self):
         action = self.action()
@@ -92,13 +97,13 @@ class DimensionSelectorActionWithOptionsTest(unittest.TestCase):
 
         assert self._dimension.current_value == "B"
 
-        assert mock.called_once_with()
+        mock.assert_called_once_with()
 
 
 class DimensionSelectorActionWithTableTest(unittest.TestCase):
 
     def action(self):
-        rows = add_layer('rows.geojson', 'rows')
+        rows = add_layer("rows.geojson", "rows")
 
         self._dimension = Dimension(
             name="row",
@@ -108,9 +113,7 @@ class DimensionSelectorActionWithTableTest(unittest.TestCase):
             current_value=1,
         )
 
-        return DimensionSelectorAction(
-            self._dimension
-        )
+        return DimensionSelectorAction(self._dimension)
 
     def test_createWidget(self):
         action = self.action()
@@ -128,4 +131,4 @@ class DimensionSelectorActionWithTableTest(unittest.TestCase):
 
         assert self._dimension.current_value == 2
 
-        assert mock.called_once_with()
+        mock.assert_called_once_with()

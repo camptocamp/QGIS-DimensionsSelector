@@ -32,4 +32,5 @@ def classFactory(iface):  # pylint: disable=invalid-name
     :type iface: QgsInterface
     """
     from .dimensions_selector_plugin import DimensionsSelectorPlugin
+
     return DimensionsSelectorPlugin(iface)

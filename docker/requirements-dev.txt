@@ -1,0 +1,11 @@
+bandit
+black
+coverage
+debugpy
+detect-secrets
+flake8
+pydevd
+pytest
+pytest-cov
+sphinx
+sphinx-intl

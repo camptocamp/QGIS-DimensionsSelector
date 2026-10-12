@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from PyQt5.QtCore import Qt, pyqtSignal, QAbstractTableModel, QModelIndex
-from PyQt5.QtWidgets import QComboBox, QWidgetAction
+from qgis.PyQt.QtCore import Qt, pyqtSignal, QAbstractTableModel, QModelIndex
+from qgis.PyQt.QtWidgets import QComboBox, QWidgetAction
 
 
 class DimensionValuesModel(QAbstractTableModel):
@@ -23,10 +23,10 @@ class DimensionValuesModel(QAbstractTableModel):
         except TypeError:
             return 0
 
-    def data(self, index, role=Qt.DisplayRole):
-        if role == Qt.DisplayRole:
+    def data(self, index, role=Qt.ItemDataRole.DisplayRole):
+        if role == Qt.ItemDataRole.DisplayRole:
             return self._items[index.row()][1]
-        if role == Qt.EditRole:
+        if role == Qt.ItemDataRole.EditRole:
             return self._items[index.row()][0]
 
 
@@ -42,11 +42,15 @@ class DimensionSelectorAction(QWidgetAction):
     def createWidget(self, parent):
         widget = QComboBox(parent)
         widget.setModel(self._model)
-        index = widget.findData(self._dimension.current_value, role=Qt.EditRole)
+        index = widget.findData(
+            self._dimension.current_value, role=Qt.ItemDataRole.EditRole
+        )
         widget.setCurrentIndex(index)
         widget.currentIndexChanged.connect(self.onSelectionChange)
         return widget
 
     def onSelectionChange(self, index):
-        self._dimension.current_value = self.sender().currentData(Qt.EditRole)
+        self._dimension.current_value = self.sender().currentData(
+            Qt.ItemDataRole.EditRole
+        )
         self.valueChanged.emit()

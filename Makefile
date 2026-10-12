@@ -18,179 +18,92 @@
 # *																		 *
 # ***************************************************************************/
 
-#################################################
-# Edit the following to match your sources lists
-#################################################
-
-
-#Add iso code for any locales you want to support here (space separated)
-# default is no locales
-# LOCALES = af
-LOCALES = fr
-
-# translation
-
 PLUGINNAME = dimensions_selector
 
-EXTRAS = metadata.txt icon.png
+# QGIS version of the docker image, can be overriden by calling
+# QGIS_VERSION=4.2 make <target> or in local.mk
+# QGIS_VERSION ?= 3.44
+QGIS_VERSION ?= 4.2
 
-EXTRA_DIRS =
+# QGISDIR ?= .local/share/QGIS/QGIS3/profiles/default
+QGISDIR ?= .local/share/QGIS/QGIS4/profiles/default
 
-PYTHON_FILES = $(shell find $(PLUGINNAME) -name *.py)
-COMPILED_RESOURCE_FILES = $(PLUGINNAME)/resources.py
+export DOCKER_BUILDKIT=1
 
-PEP8EXCLUDE=pydev,resources.py,conf.py,third_party,ui
+# Used by docker-compose.yaml to select the image tag
+export QGIS_VERSION
 
+DOCKER_RUN_CMD = docker compose run --rm --user `id -u` tester
 
-#################################################
-# Normally you would not need to edit below here
-#################################################
+-include local.mk
 
-HELP = help/build/html
+default: help
 
-PLUGIN_UPLOAD = ./plugin_upload.py
-
-RESOURCE_SRC=$(shell grep '^ *<file' resources.qrc | sed 's@</file>@@g;s/.*>//g' | tr '\n' ' ')
-
-QGISDIR=.local/share/QGIS/QGIS3/profiles/default
-
-default: compile
-
-compile: $(COMPILED_RESOURCE_FILES) doc
-
-%.py : %.qrc $(RESOURCES_SRC)
-	pyrcc5 -o $*.py  $<
-
-%.qm : %.ts
-	$(LRELEASE) $<
-
-link: derase
-	ln -s $(shell pwd)/$(PLUGINNAME) $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
-
-test: compile transcompile .build/requirements-dev.timestamp
+.PHONY: help
+help: ## Display this help message
+	@echo "Usage: make <target>"
 	@echo
-	@echo "----------------------"
-	@echo "Regression Test Suite"
-	@echo "----------------------"
+	@echo "Possible targets:"
+	@grep -E -h '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "    %-20s%s\n", $$1, $$2}'
 
-	@# Preceding dash means that make will continue in case of errors
-	
-	@-export PYTHONPATH=`pwd`:$(PYTHONPATH); \
-		export QGIS_DEBUG=0; \
-		export QGIS_LOG_FILE=/dev/null; \
-		.build/venv/bin/nosetests -v --with-id --with-coverage --cover-erase \
-			--cover-package=$(PLUGINNAME) \
-			./test \
-			3>&1 1>&2 2>&3 3>&- || true
-	@echo "----------------------"
-	@echo "If you get a 'no module named qgis.core error, try sourcing"
-	@echo "the helper script we have provided first then run make test."
-	@echo "e.g. source run-env-linux.sh <path to qgis install>; make test"
-	@echo "----------------------"
+.PHONY: clean
+clean: ## Delete generated files
+	git clean -dfX
 
-deploy: package derase
-	@echo
-	@echo "------------------------------------------------"
-	@echo "Deploying plugin to your QGIS profile directory."
-	@echo "------------------------------------------------"
-	# The deploy  target only works on unix like operating system where
-	# the Python plugin directory is located at:
-	# $$HOME/$(QGISDIR)/python/plugins
-	unzip dist/$(PLUGINNAME).zip -d $(HOME)/$(QGISDIR)/python/plugins/
+.PHONY: qgis
+qgis: ## Run QGIS desktop
+	docker compose run --rm --user `id -u`:`id -g` qgis
 
-derase:
-	@echo
-	@echo "-------------------------"
-	@echo "Removing deployed plugin."
-	@echo "-------------------------"
-	rm -Rf $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
+.PHONY: check
+check: ## Run linters
+	$(DOCKER_RUN_CMD) make -f docker.mk check
 
-package: compile
-	@echo
-	@echo "------------------------------------"
-	@echo "Exporting plugin to zip package.	"
-	@echo "------------------------------------"
+.PHONY: black
+black: ## Run black formatter
+	$(DOCKER_RUN_CMD) make -f docker.mk black
+
+.PHONY: test
+test: ## Run the automated tests suite
+	$(DOCKER_RUN_CMD) make -f docker.mk pytest
+
+.PHONY: bash
+bash: ## Run bash in tests container
+	$(DOCKER_RUN_CMD) bash
+
+.PHONY: build
+build: ## Build documentation and translations
+build: docker-build
+	$(DOCKER_RUN_CMD) make -f docker.mk build
+
+.PHONY: docker-build
+docker-build: ## Build docker images (QGIS_VERSION=<version> to select the QGIS version)
+	docker build \
+		--build-arg QGIS_VERSION=$(QGIS_VERSION) \
+		--tag camptocamp/qgis-dimensions-selector:$(QGIS_VERSION) \
+		./docker
+
+.PHONY: transup
+transup: ## Update translation catalogs
+	$(DOCKER_RUN_CMD) make -f docker.mk transup
+
+.PHONY: package
+package: ## Create plugin archive
+package: build
 	mkdir -p dist
 	rm -f dist/$(PLUGINNAME).zip
 	zip dist/$(PLUGINNAME).zip -r $(PLUGINNAME) -x '*/__pycache__/*'
 	echo "Created package: dist/$(PLUGINNAME).zip"
 
-transup:
-	@echo
-	@echo "------------------------------------------------"
-	@echo "Updating translation files with any new strings."
-	@echo "------------------------------------------------"
-	pylupdate4 -noobsolete $(PYTHON_FILES) -ts $(PLUGINNAME)/i18n/fr.ts
-	make -C help gettext
+.PHONY: deploy
+deploy: ## Deploy plugin to your QGIS plugin directory (to test zip archive)
+deploy: package derase
+	unzip dist/$(PLUGINNAME).zip -d $(HOME)/$(QGISDIR)/python/plugins/
 
-transcompile:
-	@echo
-	@echo "----------------------------------------"
-	@echo "Compiled translation files to .qm files."
-	@echo "----------------------------------------"
-	lrelease $(PLUGINNAME)/i18n/fr.ts
+.PHONY: derase
+derase: ## Remove deployed plugin from your QGIS plugin directory
+	rm -Rf $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
 
-transclean:
-	@echo
-	@echo "------------------------------------"
-	@echo "Removing compiled translation files."
-	@echo "------------------------------------"
-	rm -f $(PLUGINNAME)/i18n/*.qm
-
-clean: transclean
-	@echo
-	@echo "------------------------------------"
-	@echo "Removing uic and rcc generated files"
-	@echo "------------------------------------"
-	rm $(COMPILED_RESOURCE_FILES)
-	rm -rf $(PLUGINNAME)/help
-
-cleanall: clean
-	rm -rf .build
-
-doc: .build/requirements-dev.timestamp
-	@echo
-	@echo "------------------------------------"
-	@echo "Building documentation using sphinx."
-	@echo "------------------------------------"
-	make -C help html
-	cp -r help/build/html/* $(PLUGINNAME)/help/
-
-check: flake8
-
-pylint:
-	@echo
-	@echo "-----------------"
-	@echo "Pylint violations"
-	@echo "-----------------"
-	@pylint --reports=n --rcfile=pylintrc . core gui test || true
-	@echo
-	@echo "----------------------"
-	@echo "If you get a 'no module named qgis.core' error, try sourcing"
-	@echo "the helper script we have provided first then run make pylint."
-	@echo "e.g. source run-env-linux.sh <path to qgis install>; make pylint"
-	@echo "----------------------"
-
-
-# Run pep8 style checking
-#http://pypi.python.org/pypi/pep8
-pep8:
-	@echo
-	@echo "-----------"
-	@echo "PEP8 issues"
-	@echo "-----------"
-	@pep8 --repeat --ignore=E203,E121,E122,E123,E124,E125,E126,E127,E128 --exclude $(PEP8EXCLUDE) --max-line-length=110 . || true
-	@echo "-----------"
-	@echo "Ignored in PEP8 check:"
-	@echo $(PEP8EXCLUDE)
-
-flake8: .build/requirements-dev.timestamp
-	.build/venv/bin/flake8
-
-.build/venv.timestamp:
-	python3 -m venv --system-site-packages .build/venv
-	touch $@
-
-.build/requirements-dev.timestamp: .build/venv.timestamp requirements-dev.txt
-	.build/venv/bin/pip install -r requirements-dev.txt
-	touch $@
+.PHONY: link
+link: ## Create symbolic link to this folder in your QGIS plugins folder (for development)
+link: derase
+	ln -s $(shell pwd)/$(PLUGINNAME) $(HOME)/$(QGISDIR)/python/plugins/$(PLUGINNAME)
